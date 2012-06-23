@@ -1,0 +1,17 @@
+<Room>
+    <Name>Dungeon Cell</Name>
+    
+    <Description>
+        You are in a dark dungeon. The air is musty, and
+        there is no light, save what little leaks through
+        the bars of the cell's door from a burning torch
+        in the hall outside. You hear some moaning in the
+        distance, but aside from that, you are alone.
+    </Description>
+    
+    <CommandName>Inspect walls</CommandName>
+    
+    <ItemName>Latrine</ItemName>
+    <ItemName>Bed</ItemName>
+    <ItemName>Cup</ItemName>
+</Room>    

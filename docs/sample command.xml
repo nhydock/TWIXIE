@@ -1,0 +1,91 @@
+<!--
+    Here is an example of an obscenely convoluted Command. First, the Command
+    creates a new Item, with an in-line definition. This new Item also has a
+    Command, which also creates a new Item in-line. The final Item again has a
+    Command, which adds a new path to a Room. Please, if you can, describe all
+    of your Rooms, Items, and Commands in separate files, and link them via
+    their names instead.
+-->
+    
+<Command>
+    <Name>Inspect Walls</Name>
+
+    <Message>
+        The walls are damp, and made of stone. The years
+        have smoothed their once-rough edges. Some bricks
+        in the far wall seem a tad loose...
+    </Message>
+
+    <ProduceItem>
+        <Item>
+            <Name>Loose Bricks</Name>
+
+            <Description>
+                Some bricks that appear to have been
+                loosened from the wall, probably by a
+                previous inmate...
+            </Description>
+
+            <Possess>false</Possess>
+
+            <AttachTo>Dungeon Cell</AttachTo>
+
+            <Command>
+                <Name>Move Loose Bricks</Name>
+
+                <Message>
+                    You move aside the loose bricks to reveal...
+
+                    A key!
+                </Message>
+
+                <!--
+                    Does not require Loose Bricks, as the player can't have
+                    Loose Bricks; instead, the player must simply be in the same
+                    Room as the Loose Bricks.
+                -->
+
+                <ConsumeItem>Loose Bricks</ConsumeItem>
+
+                <ProduceItem>
+                    <Item>
+                        <Name>Rusty Key</Name>
+
+                        <Description>
+                            A rusty key, it appears to have been
+                            hand-crafted...
+                        </Description>
+
+                        <Possess>true</Possess>
+
+                        <AttachTo>Dungeon Cell</AttachTo>
+
+                        <Command>
+                            <Name>Unlock cell door</Name>
+
+                            <Message>
+                                The door is now unlocked. You can now leave
+                                the cell!
+                            </Message>
+
+                            <Location>Dungeon Cell</Location>
+
+                            <RequireItem>Rusty Key</RequireItem>
+
+                            <ConsumeItem>Rusty Key</ConsumeItem>
+
+                            <AlterRoom>
+                                <RoomName>Dungeon Cell</RoomName>
+
+                                <CreatePath>
+                                    <Name>To hallway</Name>
+                                    <Destination>Hallway</Destination>
+                                </CreatePath>
+                            </AlterRoom>
+                        </Command>
+                    </Item>
+                </ProduceItem>
+            </Command>
+        </Item>
+    </ProduceItem>
+</Command>

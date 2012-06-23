@@ -1,0 +1,29 @@
+[Room Files]
+-- Name
+-- Description
+-- List of Commands unique to this room
+-- List of Items in scene
+   -- By name, or explicitely defined
+   -- Unique (no duplicate names)
+-- List of paths
+   -- By name
+   -- Includes name of connecting room
+
+[Item Files]
+-- Name
+-- Description
+-- Can possess
+-- Initial attachment
+-- List of unique commands and generic command overrides
+
+[Command Files]
+-- Name
+-- Description
+-- List of required items
+-- Required location (room name, or 'any' for anywhere)
+-- List of items consumed
+-- List of items produced
+-- List of rooms altered
+   -- Paths created/removed
+   -- Items created/removed
+   -- Commands created/removed

@@ -1,0 +1,109 @@
+================================================================================
+[Generic Tags]
+
+<Room>			Top-level descriptor for a Room object.
+
+<Item>			Top-level descriptor for an Item object. Can be nested inside of
+				Room definitions or inside <ProduceItem> blocks in Commands.
+
+<Command>		Top-level descriptor for a Command object. Can be nested inside
+				of Room definitions and Item definitions.
+
+<Name>			Defines the name of an object. Located in Rooms, Items, and
+				Commands. The only real required tag.
+
+<Description>	Defines the description of an object, and appears when a Look or
+				Look At commands is given. Found inside Rooms and Items
+				(analogous to <Message> in Commands).
+
+<RoomName>,		A way to reference Rooms, Items, or Commands when a reference is
+<ItemName>,		needed, by providing the name of the object. The alternative is
+<CommandName>	to define the required object in-line, which can get messy.
+================================================================================
+
+
+================================================================================
+[Room Tags]
+
+<Name>			See above.
+
+<Description>	See above. Displayed with Look.
+
+<Item>/			See above.
+<ItemName>
+
+<Command>/		See above.
+<CommandName>
+
+<Path>			Lower-level descriptor of a Path, which only exist in Rooms.
+				Paths MUST have a <Name> (see above), AND a <Destination>, which
+				is the name of another Room (can't be defined in-line).
+================================================================================
+
+
+================================================================================
+[Item Tags]
+
+<Name>			See above.
+
+<Description>	See above. Displayed with Look At.
+
+<Possess>		Whether you can possess this Item or not. If you cannot possess
+				this Item, you can still use commands attached to it, but you
+				must be in the same Room as this Item. Default is true.
+
+<AttachTo>		Default attachment. May be the name of a dungeon, or SELF to
+				have it placed immediately in your inventory. Nifty for item
+				generation via Commands. Default is NULL.
+
+<Use>			Override the built-in Use command. Requires a reference to a
+				Command via <CommandName>, or through an in-line definition. If
+				Use is not overridden, then this Item does nothing.
+
+<Command>/		See above. Chaining Items and Commands can produce very
+<CommandName>	interesting results.
+================================================================================
+
+
+================================================================================
+[Command Tags]
+
+<Name>			See above.
+
+<Message>		Analogous to <Description> (see above). Displayed only if the
+				Command can be successfully activated.
+
+<Location>		Where this Command can be activated, or ANY for anywhere. If
+				omitted, ANY is assumed.
+
+<RequireItem>	Name of an Item required to be possessed by the user before this
+				Command can be activated. Item may or may not be consumed. If
+				omitted, no requirements assumed.
+
+<ConsumeItem>	Deletes an Item from the global list of Items. Parameter MUST
+				be the name of an already existing Item (can't define a new Item
+				in this tag). May or may not be a required Item.
+
+<ProduceItem>	Creates a new Item, and adds it to the global list of Items. If
+				the name of an already created Item is given, via the <ItemName>
+				tag, the <AttachTo> tag can be used to change its location (must
+				immediately follow the <ItemName> tag or an error will occur).
+				Otherwise, a new Item must be defined in-line.
+
+<AlterRoom>		Change features of a Room, given its name with <RoomName>.
+				Items, Paths, and Commands can be created or removed with their
+				corresponding <Create*> and <Remove*> tags. <Remove*> must be
+				given the name of a pre-defined object. <Create*> can be given
+				the name of a pre-defined object, or a new one can be created
+				in-line. All appropriate tags and parameters apply.
+
+				The only exception to the <Create*> tag is <CreatePath>, as
+				Paths are private, so a reference to a Path name can't be given;
+				they must be defined in-line. In this instance, <CreatePath>
+				takes the place of <Path>. The <Path> tags apply as before.
+
+				The <Name> and <Description> of the Room can also be changed. If
+				the <Name> is changed, all Items and Commands that reference
+				that Room will be updated. If you don't want a Command to be
+				able to work after a Room has been changed, then remove it!
+================================================================================
