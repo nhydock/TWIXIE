@@ -1,7 +1,7 @@
 from CommandParser import CommandParser;
 from Scenario import Scenario;
 
-_initial_scenario = "Start"	#the first scenario the game should start in
+_initial_scenario = "sample room"	#the first scenario the game should start in
 
 _instance = None	#singleton instance
 	
@@ -28,7 +28,7 @@ class Engine:
 		self.parser = CommandParser(self)
 		
 	def startGame():
-		pass
+		self.setScenario(_initial_scenario)
 	
 	#loads data to a previously saved point
 	# @param number	the save id that wants to be loaded
@@ -51,6 +51,9 @@ class Engine:
 	def setScenario(self, s):
 		if self.scenario.__name__() is not s:
 			self.scenario = Scenario(s)
+			#after loading a new room, tell the parser to look at the room
+			self.parser.addLetter("look")
+			self.parser.execute()	
 			return True
 		return False
 	
@@ -64,13 +67,15 @@ class Engine:
 		
 	#displaysprint string a message to the screen
 	def show(self, string):
-		#until we get the graphics implemented, just print the string to the terminal
 		self.message = string
 		
 	def isShowingMessage(self):
 		if self.message is not None:
 			return True
 		return False
+		
+	def getMessage(self):
+		return self.message
 		
 #a not so special class
 #Players contain the player's name and their inventory	

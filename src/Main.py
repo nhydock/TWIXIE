@@ -40,6 +40,7 @@ class Runner(threading.Thread):
 			for key, char in Input.getKeyPresses():
 				#if the engine is showing a message, skip through the message when any button is pressed
 				if engine.isShowingMessage():
+					graphics.nextLines()	#advances the message on key press
 					continue
 				
 				#execute commands on pressing return
