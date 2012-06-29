@@ -25,7 +25,7 @@ class ClientComponent:
 		self.display_buffer = pygame.display.set_mode(output_res, mode)
 		
 		self.font = pygame.font.Font("../data/fonts/default.ttf", 12)
-		self.textEntryArea = pygame.Surface(internal_res, self.font.get_height()+4)
+		self.textEntryArea = pygame.Surface((internal_res[0], self.font.get_height()+4))
 		
 	#gets the global font for use
 	def getFont(self):
@@ -33,7 +33,6 @@ class ClientComponent:
 		
 	#renders all the graphics
 	def render(self):
-		print self.engine.getTyped()
 		currentScene = self.engine.getScenario()
 
 		#clean the buffers
@@ -45,7 +44,7 @@ class ClientComponent:
 		
 		#renders the text command to the screen
 		self.textEntryArea.fill(CLEAR_COLOR)	#clear the text entry area
-		self.textEntryArea.blit(self.font.render("> %s" % self.engine.getTyped(), True, TEXT_COLOR), (3, 2)) #draws the text slightly offset in the box
+		self.textEntryArea.blit(self.font.render("> %s" % self.engine.getTyped(), False, TEXT_COLOR), (3, 2)) #draws the text slightly offset in the box
 		self.internal_buffer.blit(self.textEntryArea, (0, self.internal_buffer.get_height()-self.textEntryArea.get_height()))
 		
 		#renders to the display

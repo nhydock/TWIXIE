@@ -7,7 +7,7 @@ from pygame.locals import *
 import os
 import sys
 
-_internal_resolution = [320, 240]	#size that the engine should render in
+_internal_resolution = [800, 600]	#size that the engine should render in
 _output_resolution = [800, 600]		#size that the engine will output for viewing and interacting
 
 FPS = 30
@@ -38,7 +38,6 @@ class Runner(threading.Thread):
 			Input.update()
 			#handle key input
 			for key, char in Input.getKeyPresses():
-				print engine.parser.getCurrentTypedMessage()
 				#if the engine is showing a message, skip through the message when any button is pressed
 				if engine.isShowingMessage():
 					continue
