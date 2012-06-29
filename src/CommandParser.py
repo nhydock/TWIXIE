@@ -12,9 +12,11 @@ class CommandParser:
 		self.engine = engine
 		self.typed = []
 		
+	#gets the currently typed command as a string
 	def getCurrentTypedMessage(self):
 		return string.join(self.typed, "")
 		
+	#adds a letter to the currently typed command
 	def addLetter(self, char):
 		self.typed.append(char)
 	
@@ -25,23 +27,25 @@ class CommandParser:
 	#Parses a sentence entered by the user and executes
 	# any related commands
 	def execute(self):
-		s = self.getCurrentTypedMessage()
-		command = none
+		if self.typed is []:
+			return
+			
+		s = self.getCurrentTypedMessage() #get the currently typed command to parse
+		self.typed = []	#clear the command when it goes to execute
+
+		command = None
 		#check against globally known commands
 		for c in global_commands:
-			if s.contains(c): #look for the name of the command in the string
-				command = global_commands[c]
+			if c.name in s: #look for the name of the command in the string
 				#only execute the command if it's usable in the current situation
-				if command.isUsable():
-					command.execute()
+				if c.isUsable():
+					c.execute(s)
 				return
 				
 		#check against room/scenario specific commands
-		for c in self.engine.getCurrentScenario().getCommands():
-			if s is c:
+		for c in self.engine.getScenario().getCommands():
+			if c.name in s:
 				c.execute()
 				#only execute the command if it's usable in the current situation
 				if c.isUsable():
-					command.execute()
-
-		
+					command.execute(s)

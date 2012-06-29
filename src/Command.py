@@ -1,3 +1,5 @@
+import Engine
+
 #Base structure for a command
 #Commands can be loaded in from a file
 #While there are global commands, most commands are defined per room/scenario
@@ -17,10 +19,10 @@ class Command(object):
 	def execute(self, s):
 		pass
 			
-	def usable(self):
+	def isUsable(self):
 		#ignore execution if the location where the command can be executed is not equal
 		# to the name of the current scenario
-		if self.location is not None and Engine.getInstance().getCurrentScenario() is not self.location:
+		if self.location is not None and Engine.getInstance().getScenario() is not self.location:
 			return False
 		return True
 		
@@ -40,7 +42,8 @@ class Look(Command):
 		
 	#reshows the current rooms message and commands
 	def execute(self, s):
-		self.engine.show(Engine.getInstance().getCurrentScenario().getMessage())
+		s = Engine.getInstance().getScenario().getMessage()
+		Engine.getInstance().show(s)
 			
 #Command to look at a specific thing in the room or in your inventory
 class LookAt(Command):
@@ -52,7 +55,7 @@ class LookAt(Command):
 	def execute(self, s):
 		#now we look for an item in the list of known items
 		#the we look at the items in the scene
-		for i in Engine.getInstance().getCurrentScenario().getObjects():
+		for i in Engine.getInstance().getScenario().getObjects():
 			if s.contains(i):
 				Engine.getInstance().show(i.getMessage())
 				return
