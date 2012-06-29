@@ -7,8 +7,9 @@ SOFTWARE = 0	#Basic software rendering mode for pygame
 HARDWARE = pygame.OPENGL | pygame.DOUBLEBUF | pygame.HWSURFACE	#Hardware rendering mode for pygame
 CLEAR_COLOR = (0,0,0,255)	#clears the screen to black
 TEXT_COLOR = (200, 115, 11, 255)
+FONT_SIZE = 32
 
-LINES_TO_DISPLAY = 3	#how many lines of description text are allowed to be shown at a time
+LINES_TO_DISPLAY = 6	#how many lines of description text are allowed to be shown at a time
 
 #Client Component handles all the graphics drawing of the game
 #It uses pyGame to display everything
@@ -30,7 +31,7 @@ class ClientComponent:
 		self.display_buffer = pygame.display.set_mode(output_res, mode)
 		
 		#font for the display
-		self.font = pygame.font.Font(os.path.join("..", "data", "fonts", "default.ttf"), 12)
+		self.font = pygame.font.Font(os.path.join("..", "data", "fonts", "default.ttf"), FONT_SIZE)
 		
 		#area to display the currently typed command
 		self.textEntryArea = pygame.Surface((internal_res[0], self.font.get_linesize()+4))
@@ -56,8 +57,6 @@ class ClientComponent:
 		x = 0						#x position on screen for wrapping
 		width = self.internal_buffer.get_width()	#width of the screen to wrap within
 		
-		print words
-		
 		#operation to take the string and divide it into lines
 		for word in words:
 			size = self.font.size(word + " ")[0] 
@@ -74,7 +73,6 @@ class ClientComponent:
 			
 		#add the last line
 		lines.append(string.join(line, " "))
-		print lines
 		return lines
 	
 	#advances the line index
@@ -84,6 +82,7 @@ class ClientComponent:
 		if self.mIndex > len(self.message)-1:
 			self.message = None
 			self.engine.show(None)
+			self.mIndex = 0
 		
 	#renders all the graphics
 	def render(self):
