@@ -1,28 +1,31 @@
-import CommandParser;
-import Scenario;
+from CommandParser import CommandParser;
+from Scenario import Scenario;
 
 _initial_scenario = "Start"	#the first scenario the game should start in
 
+_instance = None	#singleton instance
+	
+#get Singleton instance of the engine
+def getInstance():
+	global _instance
+	if _instance is None:
+		_instance = Engine()
+	return _instance
+	
 #Engine is the main logic container of the game
 #it contains all the objects for scenario, global parser,
-class Engine:
-	_instance = None	#singleton instance
-	
-	#get Singleton instance of the engine
-	@staticmethod
-	def get_instance()
-		if _instance is None:
-			_instance = Engine()
-		return _instance
-		
+class Engine:		
 	#initializes the engine to starting game position
 	def __init__(self):
 		#current scenario
 		self.scenario = Scenario(_initial_scenario)	
 		
+		#message to display to screen
+		self.message = None
+		
 		#global command parser
 		#it takes in the engine so then it can handle scenario specific commands
-		self.parser = CommandParser(self)	
+		self.parser = CommandParser(self)
 		
 	def startGame():
 		pass
@@ -40,22 +43,34 @@ class Engine:
 	def saveGame(self, number):
 		pass
 		
-	#sets the current sceneario to a new scenario
+	#sets the current scenario to a new scenario
 	# if the scenario ID (file path to the scenario) is the same then
 	# it ignores the setting
 	# @return true if a new scenario is set
 	#		  false if the sceneraio does not change
 	def setScenario(self, s):
-		if (self.scenario.__name__() is not s)
+		if self.scenario.__name__() is not s:
 			self.scenario = Scenario(s)
-			return true
-		return false
+			return True
+		return False
 	
-	
-	#displays a message to the screen
+	#gets the current scenario from the engine
+	# used for rendering the current scene
+	def getScenario(self):
+		return self.scenario
+		
+	def getTyped(self):
+		return self.parser.getCurrentTypedMessage()
+		
+	#displaysprint string a message to the screen
 	def show(self, string):
 		#until we get the graphics implemented, just print the string to the terminal
-		print string
+		self.message = string
+		
+	def isShowingMessage(self):
+		if self.message is not None:
+			return True
+		return False
 		
 #a not so special class
 #Players contain the player's name and their inventory	
