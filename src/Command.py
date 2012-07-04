@@ -1,4 +1,5 @@
 import Engine
+import Input
 
 #Base structure for a command
 #Commands can be loaded in from a file
@@ -69,5 +70,13 @@ class LookAt(Command):
 		#if nothing was found display an error
 		Engine.getInstance().show("No such thing exists")
 
+class Exit(Command):
+	def __init__(self):
+		super(Exit, self).__init__("exit")
+		self.location = None
+		
+	def execute(self, s):
+		Input.finished = True
+
 #commands accessible by the player anywhere
-global_commands = [Look(), LookAt()]
+global_commands = [Look(), LookAt(), Exit()]
