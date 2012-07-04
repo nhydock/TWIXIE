@@ -11,7 +11,7 @@ from View import Viewport, HARDWARE
 
 _output_resolution = [800, 600]		#size that the engine will output for viewing and interacting
 
-FPS = 30
+FPS = 60
 
 caption = 'TWIXIE [FPS: %i]'
 
@@ -44,27 +44,6 @@ class Runner(threading.Thread):
 
 			self.viewport.run()
 			Input.reset()
-			self.clock.tick(FPS)
-			self.currentFPS = int(self.clock.get_fps())
-			
-			#fps counter is in the title bar
-			pygame.display.set_caption(caption % (self.currentFPS))
-        
-			#handle key input
-			for key, char in Input.getKeyPresses():
-				#if the engine is showing a message, skip through the message when any button is pressed
-				if engine.isShowingMessage():
-					graphics.nextLines()	#advances the message on key press
-					continue
-				
-				#execute commands on pressing return
-				if key == K_RETURN:
-					engine.parser.execute()
-				#add the letter to the player's command
-				elif key == K_BACKSPACE:
-					engine.parser.removeLetter()
-				else:
-					engine.parser.addLetter(char)
 
 			self.clock.tick(FPS)
 			self.currentFPS = int(self.clock.get_fps())
