@@ -4,6 +4,12 @@ from Scenario import Scenario;
 _initial_scenario = "sample room"	#the first scenario the game should start in
 
 _instance = None	#singleton instance
+
+#command line parser, if running python 2.7 use argparse, else fall-back to optparse
+try:
+    import argparse
+except ImportError:
+    import optparse as argparse
 	
 #get Singleton instance of the engine
 def getInstance():
