@@ -29,8 +29,9 @@ class CommandParser:
 	def execute(self):
 		if self.typed is []:
 			return
-			
-		s = self.getCurrentTypedMessage() #get the currently typed command to parse
+		#get the currently typed command to parse
+		#ensure it's lower case, all commands should be registered in lower case so then case doesn't matter
+		s = self.getCurrentTypedMessage().lower() 
 		self.typed = []	#clear the command when it goes to execute
 
 		command = None
