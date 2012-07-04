@@ -37,7 +37,7 @@ class CommandParser:
 		command = None
 		#check against globally known commands
 		for c in global_commands:
-			if c.name in s: #look for the name of the command in the string
+			if str(c) in s: #look for the name of the command in the string
 				#only execute the command if it's usable in the current situation
 				if c.isUsable():
 					c.execute(s)
@@ -45,7 +45,7 @@ class CommandParser:
 				
 		#check against room/scenario specific commands
 		for c in self.engine.getScenario().getCommands():
-			if c.name in s:
+			if str(c) in s:
 				c.execute()
 				#only execute the command if it's usable in the current situation
 				if c.isUsable():

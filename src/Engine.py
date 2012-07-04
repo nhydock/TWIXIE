@@ -33,6 +33,10 @@ class Engine:
 		#it takes in the engine so then it can handle scenario specific commands
 		self.parser = CommandParser(self)
 		
+		#player object for the user
+		#stores their inventory, score, and other things for them
+		self.player = Player()
+		
 	def startGame():
 		self.setScenario(_initial_scenario)
 	
@@ -85,6 +89,10 @@ class Engine:
 	#gets the message to be printed to the display
 	def getMessage(self):
 		return self.message
+		
+	#gets the engine's current player instance
+	def getPlayer(self):
+		return self.player
 		
 #a not so special class
 #Players contain the player's name and their inventory	
