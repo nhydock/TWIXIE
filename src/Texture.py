@@ -43,6 +43,7 @@ class Texture:
         
         self.path = os.path.join("..", "data", path)
         
+        #if path is specified then load an image from the path
         if path != "":
             path = os.path.join("..", "data", path)
             #using pygame to load the image because it already is opengl friendly
@@ -52,12 +53,14 @@ class Texture:
                 if isinstance(fallback, Texture):
                     print "Image %s was not found, using fallback image instead" % path
                     self.textureSurface = fallback.textureSurface
+                #if no fallback image than try using a surface in its place
                 else:
                     print "Image %s was not found, creating pygame surface in its place" % path
                     self.textureSurface = surface
             else:
+				#load the image if the path exists
                 self.textureSurface = pygame.image.load(path)
-        
+		#surface is a pygame surface if the path exists
         else:
             self.textureSurface = surface
         

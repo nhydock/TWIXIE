@@ -7,8 +7,8 @@ from View import Scene #this is actually considered a scene object
 from View import INTERNAL_RESOLUTION as IRES	#import the internal resolution to work with for positioning things
 
 CLEAR_COLOR = (0,0,0,255)	#clears the screen to black
-TEXT_COLOR = (200, 115, 11, 255)
-FONT_SIZE = 32
+TEXT_COLOR = (200/255.0, 115/255.0, 11/255.0, 255/255.0)
+FONT_SIZE = 24
 
 LINES_TO_DISPLAY = 6	#how many lines of description text are allowed to be shown at a time
 
@@ -50,10 +50,10 @@ class ClientComponent(Scene):
 		
 		#operation to take the string and divide it into lines
 		for word in words:
-			size = self.font.size(word + " ")[0] 
+			size = self.font.stringWidth(word + " ")
 			
 			#if word added to current x exceeds boundaries, then wrap it
-			if x + size > width or word is "\n":
+			if x + size > width:
 				lines.append(string.join(line, " "))
 				line = [word]	#make new line with the word in it
 				x = xStart + size
@@ -68,7 +68,7 @@ class ClientComponent(Scene):
 	
 	#handles key input
 	def keyPressed(self, key, char):
-		print char
+		#print char
 		
 		#if the engine is showing a message, skip through the message when any button is pressed
 		if self.engine.isShowingMessage():
@@ -113,6 +113,6 @@ class ClientComponent(Scene):
 				self.message = self.wrapWords(self.engine.getMessage())
 			#draw the lines of text that are currently showing
 			for i in range(self.mIndex, min(len(self.message), self.mIndex+LINES_TO_DISPLAY)):
-				self.font.setPosition(3, 2 + self.font.get_height()*(i % LINES_TO_DISPLAY))
+				self.font.setPosition(3, self.font.get_height()*LINES_TO_DISPLAY - self.font.get_height()*(i % LINES_TO_DISPLAY))
 				self.font.render(self.message[i])
 			#self.internal_buffer.blit(self.messageDisplayArea, (0, self.internal_buffer.get_height()-self.messageDisplayArea.get_height()))

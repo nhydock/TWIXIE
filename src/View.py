@@ -9,7 +9,11 @@ Licensed under the GNU General Public License V3
 
 '''
 
-from sysobj import *
+from Camera import Camera, DEFAULT_ZOOM
+from ImgObj import ImgObj #load in ImgObj to handle resetting clickable buttons when changing scenes
+
+import pygame
+
 import numpy as np
 from numpy import float32, array
 
@@ -20,8 +24,7 @@ from math import *
 
 import Input
 
-INTERNAL_RESOLUTION = [800.0, 600.0] #resolution at which the engine actually renders at
-DEFAULT_ZOOM = 100.0
+INTERNAL_RESOLUTION = [1024.0, 768.0] #resolution at which the engine actually renders at
 SOFTWARE = 0	#Basic software rendering mode for pygame
 HARDWARE = pygame.OPENGL | pygame.DOUBLEBUF | pygame.HWSURFACE	#Hardware rendering mode for pygame
 
@@ -117,11 +120,11 @@ class Viewport:
         #create an orthographic display of the windows defined size              
         glOrtho(0, self.width, 0, self.height, -500.0, 1000.0)
         #stretch the internal resolution to the window's resolution
-        glScalef((self.width/INTERNAL_RESOLUTION[0]), (self.height/INTERNAL_RESOLUTION[1]), 1.0)
+        glScalef((float(self.width)/INTERNAL_RESOLUTION[0]), (float(self.height)/INTERNAL_RESOLUTION[1]), 1.0)
         #pan over to the proper position based on the camera's focus point
         glTranslatef(-self.camera.focusx, -self.camera.focusy, 1.0)
         #zoom in on the scene based on the camera's zoom focus
-        glScalef(self.camera.zoom/DEFAULT_ZOOM, self.camera.zoom/DEFAULT_ZOOM, 1.0)
+        #glScalef(self.camera.zoom/DEFAULT_ZOOM, self.camera.zoom/DEFAULT_ZOOM, 1.0)
         
     #resets the projection and its matrix so things don't stack from changing projections
     def resetProjection(self):
