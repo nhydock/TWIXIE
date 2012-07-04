@@ -8,6 +8,7 @@ Licensed under the GNU General Public License V3
 http://www.gnu.org/licenses/gpl.html
 
 '''
+
 import os
 import sys
 
@@ -39,10 +40,13 @@ TEX_ARRAY[1,0] = 1; TEX_ARRAY[1,1] = 0
 TEX_ARRAY[2,0] = 1; TEX_ARRAY[2,1] = 1
 TEX_ARRAY[3,0] = 0; TEX_ARRAY[3,1] = 1
 
-#creates a texture from a font and string
-# it's an extension of the ImgObj class just so I can 
-# save on lines of code for the various attribute
-# changing methods
+#FontObj are of the UlDunAd Rendering family with Texture, ImgObj, and WindowObj
+# it extends directly from pygame for a familiar API but handles all rendering
+# using basic OpenGL practices.  Important methods such as render have been
+# overridden to perform OpenGL calls, and upon initialization a glyph dictionary
+# is generated for use in rendering.  Surfaces and other objects are not generated
+# from FontObj to use, instead rendering is direct and immediate to the OpenGL buffer
+# using the glyphs stored.
 class FontObj(pygame.font.Font):
 	def __init__(self, path, size = 32):
 		super(FontObj, self).__init__(os.path.join("..", "data", "fonts", path), size)
