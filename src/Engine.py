@@ -69,11 +69,14 @@ class Engine:
 	def show(self, string):
 		self.message = string
 		
+	#checks to see if there is currently a message being rendered
+	#if there is then typing input is usually disabled
 	def isShowingMessage(self):
 		if self.message is not None:
 			return True
 		return False
-		
+	
+	#gets the message to be printed to the display
 	def getMessage(self):
 		return self.message
 		

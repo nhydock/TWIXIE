@@ -7,7 +7,8 @@ from pygame.locals import *
 import os
 import sys
 
-_internal_resolution = [800, 600]	#size that the engine should render in
+from View import Viewport, HARDWARE
+
 _output_resolution = [800, 600]		#size that the engine will output for viewing and interacting
 
 FPS = 30
@@ -30,12 +31,25 @@ class Runner(threading.Thread):
 
 		#start/initializes the Thread and its engine components
 		i = 0
+		self.screen = pygame.display.set_mode(_output_resolution, HARDWARE)
+        
 		engine = Engine.getInstance()
-		graphics = ClientComponent(_internal_resolution, _output_resolution, SOFTWARE)
-	
+		self.viewport = Viewport(_output_resolution)
+
+		self.viewport.pushScene(ClientComponent())
+
+		# main event loop
 		while not Input.finished:
-			graphics.render()	#update graphics
 			Input.update()
+
+			self.viewport.run()
+			Input.reset()
+			self.clock.tick(FPS)
+			self.currentFPS = int(self.clock.get_fps())
+			
+			#fps counter is in the title bar
+			pygame.display.set_caption(caption % (self.currentFPS))
+        
 			#handle key input
 			for key, char in Input.getKeyPresses():
 				#if the engine is showing a message, skip through the message when any button is pressed
