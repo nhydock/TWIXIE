@@ -1,63 +1,67 @@
+from lxml import etree
+import os
+import glob
+
 import Engine
 import Input
-
+	
 #Base structure for a command
 #Commands can be loaded in from a file
 #While there are global commands, most commands are defined per room/scenario
 class Command(object):
 	
-	commandCache = []	#commands loaded into the system for use
 	
-	def __init__(self, name, file = None, node = None):
+	#commands loaded into the system for use
+	#load all the commands in the command folder at startup for caching purposes
+	commandCache = []
+
+	def __init__(self, node = None):
 		
 		self.location = []		#locations acceptable for the use of the command
 		self.requirements = []	#items required in inventory before being able to use
 		self.consumes = []		#items consumed when the command is used
 		self.produces = []		#items produced by the command when used
 		self.message = ""		#message shown when the command is executed
-		self.name = name		#name of the command, this is the name that you use to invoke the commande
+		self.name = "blah"		#name of the command, this is the name that you use to invoke the commande
 		
 		#if a file is provided to load data from, use it
-		if file is not None:
-			loadFromFile(file, node)
+		if node is not None:
+			self.loadFromNode(node)
 		
 		#add self to command cache after being loaded
 		Command.commandCache.append(self)
-		print self
 		
 	#loads a command and definitions from a file
-	def loadFromFile(self, file, node = None):
-		if node is not None:
-			dom = node
-		else:
-			source = open(os.path.join("..", "data", "commands", path + ".xml"))
-			dom = parse(source)
-		
-		#root of the xml
-		top = dom.getElementsByTagName("Command")[0]
+	def loadFromNode(self, node):
 		
 		#name of the room	
-		self.name = top.getElementsByTagName("Name")[0].firstChild.data	
+		self.name = node.find("Name").text	
 		
 		#get the description of the room that can be displayed when Look is called
-		self.message = top.getElementsByTagName("Message")[0].firstChild.data
+		self.message = node.find("Message").text
 		
 		#get all the locations where the command can be used
-		self.location = [n.firstChild.data for n in top.getElementsByTagName("Location")]	
+		self.location = [n.text for n in node.findall("Location")]	
 		
 		#get all the items required before using
-		self.requirements = [n.firstChild.data for n in top.getElementsByTagName("RequireItem")]
+		self.requirements = [n.text for n in node.findall("RequireItem")]
 		
 		#get all the items consumed by the command
 		#items can either be in the inventory or the environment
-		self.consumes = [n.firstChild.data for n in top.getElementsByTagName("ConsumesItem")]
+		self.consumes = [n.text for n in node.findall("ConsumesItem")]
 		#just in case, all consumed items are also added to the list of requirements
 		for item in self.consumes:
 			if item not in self.requirements:
 				self.requirements.append(item)
 				
 		#get all the items produced by the command
-		self.produces = [n.firstChild.data for n in top.getElementsByTagName("ProducesItem")]
+		self.produces = [n.text for n in node.findall("ProducesItem")]
+		
+		print self.message
+		print self.location
+		print self.requirements
+		print self.consumes
+		print self.produces
 		
 	#executes the command itself
 	def execute(self, s):
@@ -68,6 +72,8 @@ class Command(object):
 			self.produceItems()
 			#show the message to screen
 			Engine.getInstance().show(self.message)
+		else:
+			Engine.getInstance().show("What are you even trying to do?")
 			
 	#checks to see if the command can be used
 	def isUsable(self):
@@ -101,13 +107,19 @@ class Command(object):
 		if location not in self.location:
 			self.location.append(location)
 
+	#string representation of the command as how it's acceptable from a command input perspective
 	def __str__(self):
-		return self.name
+		return self.name.lower()
+		
+	def __repr__(self):
+		return self.__str__()
+
 		
 #command displays the information about the current scenario
 class Look(Command):
 	def __init__(self):
-		super(Look, self).__init__("look")
+		super(Look, self).__init__()
+		self.name = "Look"
 		self.location = [None]	#can be used anywhere
 		
 	#reshows the current rooms message and commands
@@ -118,7 +130,8 @@ class Look(Command):
 #Command to look at a specific thing in the room or in your inventory
 class LookAt(Command):
 	def __init__(self):
-		super(LookAt, self).__init__("look at")
+		super(LookAt, self).__init__()
+		self.name = "Look at"
 		self.location = [None]
 	
 	#looks at an item
@@ -139,13 +152,29 @@ class LookAt(Command):
 		#if nothing was found display an error
 		Engine.getInstance().show("No such thing exists")
 
+#command to end the game and quit
 class Exit(Command):
 	def __init__(self):
-		super(Exit, self).__init__("exit")
+		super(Exit, self).__init__()
+		self.name = "exit"
 		self.location = [None]
 		
 	def execute(self, s):
-		Input.finished = True
+		Input.finished = True	#sets input to finished, which kills the main game loop
 
 #commands accessible by the player anywhere
 global_commands = [Look(), LookAt(), Exit()]
+
+#get all the commands found in the commands folder for caching
+for file in glob.glob(os.path.join("..", "data", "commands", "*.xml")):
+	Command(etree.parse(file).getroot())
+
+#gets a command by its name if it's already been loaded
+def getCommand(name):
+	name = name.lower()	#make sure it's in the right case
+	print name
+	for i, n in enumerate(Command.commandCache):
+		print n
+		if name == str(n):
+			return n
+	return None

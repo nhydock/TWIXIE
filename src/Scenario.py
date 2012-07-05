@@ -1,4 +1,5 @@
-from xml.dom.minidom import parse, parseString
+from lxml import etree
+from Command import Command, getCommand
 import os
 
 class Scenario:
@@ -9,21 +10,28 @@ class Scenario:
 		
 		#now we do the parsing of the xml file
 		source = open(os.path.join("..", "data", "rooms", path + ".xml"))
-		dom = parse(source)
+		tree = etree.parse(source)
 		#root of the xml
-		top = dom.getElementsByTagName("Room")[0]
+		root = tree.getroot()
 		
 		#name of the room	
-		self.name = top.getElementsByTagName("Name")[0].firstChild.data	
+		self.name = root.find("Name").text	
 		
 		#get the description of the room that can be displayed when Look is called
-		self.message = top.getElementsByTagName("Description")[0].firstChild.data
+		self.message = root.find("Description").text
 		
 		#get all the names of commands specific to the room
-		self.commands = [n.firstChild.data for n in top.getElementsByTagName("CommandName")]	
+		self.commands = []
+		for n in root.findall("CommandName"):
+			if len(n) > 0: 
+				self.commands.append(Command(node = n))
+			else: 
+				self.commands.append(getCommand(n.text))
+				
+		print self.commands
 		
 		#get all the names of items found in the room
-		self.objects = [n.firstChild.data for n in top.getElementsByTagName("ItemName")]	
+		self.objects = [n.text for n in root.findall("ItemName")]	
 		
 	#gets a list of objects within the room that
 	#can be looked at
