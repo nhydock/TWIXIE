@@ -1,10 +1,11 @@
-<Room 
-	name = "Dungeon Cell" 
-	description = "You are in a dark dungeon. The air is musty, and
+<Room name = "Dungeon Cell" >
+	<Description>
+		You are in a dark dungeon. The air is musty, and
         there is no light, save what little leaks through
         the bars of the cell's door from a burning torch
         in the hall outside. You hear some moaning in the
-        distance, but aside from that, you are alone.">
+        distance, but aside from that, you are alone.
+    </Description>
         
     <Command name = "Inspect walls" />
     <Item name = "Latrine" />

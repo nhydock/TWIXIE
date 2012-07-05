@@ -4,10 +4,11 @@ import os
 
 class Scenario:
 	def __init__(self, path):
-		self.objects = []
-		self.commands = []
-		self.paths = []
-		self.message = ""
+		self.name = ""		#name of the room
+		self.objects = []	#all the items found in the room
+		self.commands = []	#all the names of commands specific to the room
+		self.paths = []		#all the available paths for taking
+		self.message = ""	#the description of the room that can be displayed when Look is called
 		
 		#now we do the parsing of the xml file
 		source = open(os.path.join("..", "data", "rooms", path + ".xml"))
@@ -15,15 +16,13 @@ class Scenario:
 		#root of the xml
 		root = tree.getroot()
 		
-		#name of the room	
 		self.name = root.attrib["name"]
-		
-		#get the description of the room that can be displayed when Look is called
 		self.message = root.attrib["description"]
 		
-		#get all the names of commands specific to the room
+		#commands can be defined in file or referenced
 		self.commands = []
 		for n in root.findall("Command"):
+			#if no sub nodes, then the 
 			if len(n) > 0: 
 				self.commands.append(Command(node = n))
 			else: 
@@ -31,7 +30,6 @@ class Scenario:
 				
 		print self.commands
 		
-		#get all the names of items found in the room
 		self.objects = []
 		"""
 		for n in root.findall("Item"):
@@ -57,3 +55,14 @@ class Scenario:
 	#the screen when describing things
 	def getMessage(self):
 		return self.message
+
+	#gets all the paths available to take
+	def getPaths(self):
+		return paths
+
+#gets a preloaded room
+def getRoom(name):
+	for room in Scenario.cache:
+		if name == room:
+			return room
+	return None

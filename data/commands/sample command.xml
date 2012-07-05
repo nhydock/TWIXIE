@@ -7,27 +7,30 @@
     their names instead.
 -->
     
-<Command name="Inspect Walls"
-	message="The walls are damp, and made of stone. The years
+<Command name="Inspect Walls">
+	<Message>
+		The walls are damp, and made of stone. The years
         have smoothed their once-rough edges. Some bricks
-        in the far wall seem a tad loose...">
+        in the far wall seem a tad loose...
+    </Message>
         
     <Alter>
 		<Room>
 			<Create>
-				<Item name="Loose Bricks"
-					description="Some bricks that appear to have been
+				<Item name="Loose Bricks">
+					<Description>Some bricks that appear to have been
 						loosened from the wall, probably by a
-						previous inmate...">
+						previous inmate...</Description>
 		   
 					<Possess>false</Possess>
 				</Item>
 				
-				<Command 
-					name="Move Loose Bricks"
-					message="You move aside the loose bricks to reveal...
+				<Command name="Move Loose Bricks">
+					<Description>
+						You move aside the loose bricks to reveal...
 
-						A key!">
+						A key!
+					</Description>
 					<!--
 						Does not require Loose Bricks, as the player can't have
 						Loose Bricks; instead, the player must simply be in the same
@@ -41,15 +44,19 @@
 							</Remove>
 							
 							<Create>
-								 <Item name="Rusty Key"
-									description="A rusty key, it appears to have been
-										hand-crafted...">
+								<Item name="Rusty Key">
+									<Description>
+										A rusty key, it appears to have been
+											hand-crafted..."
+									</Description>
 
 									<Possess>true</Possess>
 
-									<Command name="Unlock cell door"
-										message="The door is now unlocked. You can now leave
-											the cell!">
+									<Command name="Unlock cell door">
+										<Message>
+											The door is now unlocked. You can now leave
+											the cell!
+										</Message>
 
 										<Location>Dungeon Cell</Location>
 

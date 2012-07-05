@@ -3,11 +3,12 @@
 name			Defines the name of an object. Located in Rooms, Items, and
 				Commands. The only real required tag.
 
-description		Defines the description of an object, and appears when a Look or
+
+[Generic Tags]
+<Description>	Defines the description of an object, and appears when a Look or
 				Look At commands is given. Found inside Rooms and Items
 				(analogous to <Message> in Commands).
 
-[Generic Tags]
 
 <Room>			Top-level descriptor for a Room object.
 
@@ -28,9 +29,9 @@ their respective generic tag and only having the name attribute defined.
 [attributes]
 name			See above.
 
-description		See above. Displayed with Look.
-
 [tags]
+<Description>	See above. Displayed with Look.
+
 <Item>			See above.
 
 <Command>		See above.
@@ -48,11 +49,11 @@ description		See above. Displayed with Look.
 name			See above.
 				Inventory is a reserved item word
 
-description		See above. Displayed with Look At.
+[tags]
+<Description>	See above. Displayed with Look At.
 				If you use Look At Inventory, it will show the list of items in
 				your current possession
 
-[tags]
 <Possess>		Whether you can possess this Item or not. If you cannot possess
 				this Item, you can still use commands attached to it, but you
 				must be in the same Room as this Item. Default is true.
@@ -70,10 +71,10 @@ name			See above.
 				Reserved Command Names: 
 					Look, Look At, Exit, Save Data, Load Data
 
-message			Analogous to Description (see above). Displayed only if the
+[tags]
+<Message>		Analogous to Description (see above). Displayed only if the
 				Command can be successfully activated.
 
-[tags]
 <Location>		Where this Command can be activated, or ANY for anywhere. If
 				omitted, ANY is assumed.  Location is specified with a name attribute
 
