@@ -7,80 +7,63 @@
     their names instead.
 -->
     
-<Command>
-    <Name>Inspect Walls</Name>
-
-    <Message>
-        The walls are damp, and made of stone. The years
+<Command name="Inspect Walls"
+	message="The walls are damp, and made of stone. The years
         have smoothed their once-rough edges. Some bricks
-        in the far wall seem a tad loose...
-    </Message>
-
-    <ProduceItem>
-        <Item>
-            <Name>Loose Bricks</Name>
-
-            <Description>
-                Some bricks that appear to have been
+        in the far wall seem a tad loose...">
+        
+    <Produce>
+        <Item name="Loose Bricks"
+			description="Some bricks that appear to have been
                 loosened from the wall, probably by a
-                previous inmate...
-            </Description>
+                previous inmate...">
 
             <Possess>false</Possess>
 
             <AttachTo>Dungeon Cell</AttachTo>
 
-            <Command>
-                <Name>Move Loose Bricks</Name>
+            <Command 
+				name="Move Loose Bricks"
+				message="You move aside the loose bricks to reveal...
 
-                <Message>
-                    You move aside the loose bricks to reveal...
-
-                    A key!
-                </Message>
-
+                    A key!">
                 <!--
                     Does not require Loose Bricks, as the player can't have
                     Loose Bricks; instead, the player must simply be in the same
                     Room as the Loose Bricks.
                 -->
 
-                <ConsumeItem>Loose Bricks</ConsumeItem>
-
-                <ProduceItem>
-                    <Item>
-                        <Name>Rusty Key</Name>
-
-                        <Description>
-                            A rusty key, it appears to have been
-                            hand-crafted...
-                        </Description>
+                <Consume>
+					<Item name="Loose Bricks"/>
+				</Consume>
+				
+                <Produce>
+                    <Item name="Rusty Key"
+						description="A rusty key, it appears to have been
+                            hand-crafted...">
 
                         <Possess>true</Possess>
 
                         <AttachTo>Dungeon Cell</AttachTo>
 
-                        <Command>
-                            <Name>Unlock cell door</Name>
-
-                            <Message>
-                                The door is now unlocked. You can now leave
-                                the cell!
-                            </Message>
+                        <Command name="Unlock cell door"
+							message="The door is now unlocked. You can now leave
+                                the cell!">
 
                             <Location>Dungeon Cell</Location>
 
-                            <RequireItem>Rusty Key</RequireItem>
+                            <Require>
+								<Item name="Rusty Key"/>
+							</Require>
+                            
+                            <Consume>
+								<Item name="Rusty Key"/>
+                            </Consume>
 
-                            <ConsumeItem>Rusty Key</ConsumeItem>
-
-                            <AlterRoom>
-                                <RoomName>Dungeon Cell</RoomName>
-
-                                <CreatePath>
-                                    <Name>To hallway</Name>
-                                    <Destination>Hallway</Destination>
-                                </CreatePath>
+                            <AlterRoom name="Dungeon Cell">
+                                <Create>
+									<Path name="To hallway" destination="Hallway"/>
+                                </Create>
                             </AlterRoom>
                         </Command>
                     </Item>

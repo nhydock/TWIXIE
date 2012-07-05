@@ -15,23 +15,30 @@ class Scenario:
 		root = tree.getroot()
 		
 		#name of the room	
-		self.name = root.find("Name").text	
+		self.name = root.attrib["name"]
 		
 		#get the description of the room that can be displayed when Look is called
-		self.message = root.find("Description").text
+		self.message = root.attrib["description"]
 		
 		#get all the names of commands specific to the room
 		self.commands = []
-		for n in root.findall("CommandName"):
+		for n in root.findall("Command"):
 			if len(n) > 0: 
 				self.commands.append(Command(node = n))
 			else: 
-				self.commands.append(getCommand(n.text))
+				self.commands.append(getCommand(n.attrib["name"]))
 				
 		print self.commands
 		
 		#get all the names of items found in the room
-		self.objects = [n.text for n in root.findall("ItemName")]	
+		self.objects = []
+		"""
+		for n in root.findall("Item"):
+			if len(n) > 0: 
+				self.commands.append(Item(node = n))
+			else: 
+				self.commands.append(getCommand(n.attrib["name"]))
+		"""
 		
 	#gets a list of objects within the room that
 	#can be looked at

@@ -1,5 +1,5 @@
 
-from Command import global_commands, Command
+from Command import global_commands, getCommand
 import string
 
 #universal parser for the game
@@ -35,20 +35,10 @@ class CommandParser:
 		self.typed = []	#clear the command when it goes to execute
 
 		command = None
-		#check against globally known commands
-		for c in global_commands:
+		#check against globally known commands and against room/scenario specific commands
+		for c in global_commands+self.engine.getScenario().getCommands():
 			if str(c) in s: #look for the name of the command in the string
-				#only execute the command if it's usable in the current situation
 				c.execute(s)
 				return
-				
-		#check against room/scenario specific commands
-		for c in [str(c).lower() for c in self.engine.getScenario().getCommands()]:
-			if c in s:
-				if c in Command.commandCache:
-					command = Command.commandCache[Command.commandCache.index(c)]
-					#only execute the command if it's usable in the current situation
-					command.execute(s)
-					return
 					
 		self.engine.show("blah")

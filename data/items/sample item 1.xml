@@ -1,23 +1,15 @@
-<Item>
-    <Name>Latrine</Name>
-    
-    <Description>
-        A hole in the ground where you are to "relieve
-        yourself." You consider yourself lucky to have
-        been given any such a luxury.
-    </Description>
+<Item name="Latrine"
+    description='A hole in the ground where you are to "relieve
+        yourself.\" You consider yourself lucky to have
+        been given any such a luxury.'>
     
     <Possess>false</Possess>
     
     <-- Example of nested creation of Command in Use override./-->
     <Use>
-        <Command>
-            <Name>Use Latrine</Name>
-            <Message>
-                You use the latrine. You feel much better.
+        <Command name="Use Latrine"
+			message="You use the latrine. You feel much better.
                 Now, if only you had something to clean your
-                bottom with...
-            </Message>
-        </Command>
+                bottom with..."/>
     </Use>
 </Item>

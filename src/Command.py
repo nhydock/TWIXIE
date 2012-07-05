@@ -35,27 +35,27 @@ class Command(object):
 	def loadFromNode(self, node):
 		
 		#name of the room	
-		self.name = node.find("Name").text	
+		self.name = node.attrib["name"]	
 		
 		#get the description of the room that can be displayed when Look is called
-		self.message = node.find("Message").text
+		self.message = node.attrib["Message"]
 		
 		#get all the locations where the command can be used
 		self.location = [n.text for n in node.findall("Location")]	
 		
 		#get all the items required before using
-		self.requirements = [n.text for n in node.findall("RequireItem")]
+		#required items must be able to be held in the inventory
+		requireNode = node.find("Requires")
+		self.requirements = [n.attrib["name"] for n in node.findall("Item")]
 		
 		#get all the items consumed by the command
 		#items can either be in the inventory or the environment
-		self.consumes = [n.text for n in node.findall("ConsumesItem")]
-		#just in case, all consumed items are also added to the list of requirements
-		for item in self.consumes:
-			if item not in self.requirements:
-				self.requirements.append(item)
+		consumeNode = node.find("Consumes")
+		self.consumes = [n.attrib["name"] for n in node.findall("Item")]
 				
 		#get all the items produced by the command
-		self.produces = [n.text for n in node.findall("ProducesItem")]
+		produceNode = node.find("Produces")
+		self.produces = [n.attrib["name"] for n in node.findall("Item")]
 		
 		print self.message
 		print self.location
@@ -80,26 +80,36 @@ class Command(object):
 		engine = Engine.getInstance()
 		#ignore execution if the location where the command can be executed is not equal
 		# to the name of the current scenario
-		if "any" in self.location or engine.getScenario() in self.location or None in self.location:
+		if "any" in self.location or engine.getScenario() in self.location or None in self.location or not self.location:
+			print "pass location check"
 			if (self.requirements and [engine.getPlayer().hasItem(item) for item in self.requirements]) or not self.requirements:
+				print "pass requirements check"
 				return True
+		print "failed"
 		return False
 	
-	#consumes an item so it may no longer be used
-	def consumeItem(self):
+	#consumes the items so they may no longer be used
+	def consumeItems(self):
+		return
+		
 		#first get the engine to work with
 		engine = Engine.getInstance()
-		
+		#then we need the player for its inventory and the scenario for items available in the room
+		player = engine.getPlayer()
+		scenario = engine.getScenario()
+			
 		for item in self.consumes:
 			#first check the player's inventory for the item
-			player = engine.getPlayer()
 			if player.remove(item):
 				continue
 			
 			#check the environment for the item to possibly be there and not in the inventory
-			scenario = engine.getScenario()
 			if not player.remove(item):
 				raise Exception("You can perform such a command, you do not have enough items")
+
+	#makes new items and adds them to the player's inventory
+	def produceItems(self):
+		pass
 				
 	#adds a location of where commands can be used
 	#if None or "Any" is passed through, the command will be usable globally
