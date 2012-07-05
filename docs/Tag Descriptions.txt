@@ -57,14 +57,6 @@ description		See above. Displayed with Look At.
 				this Item, you can still use commands attached to it, but you
 				must be in the same Room as this Item. Default is true.
 
-<AttachTo>		Default attachment. May be the name of a dungeon, or SELF to
-				have it placed immediately in your inventory. Nifty for item
-				generation via Commands. Default is NULL.
-
-<Use>			Override the built-in Use command. Requires a reference to a
-				Command via <Command name="">, or through an in-line definition. If
-				Use is not overridden, then this Item does nothing.
-
 <Command>		See above. Chaining Items and Commands can produce very
 				interesting results.
 ================================================================================
@@ -92,21 +84,16 @@ message			Analogous to Description (see above). Displayed only if the
 				in the player's inventory or in the room.
 				If omitted, no requirements assumed.
 
-<Consume>		Deletes a list of Items from the global list of Items. 
-				Item with attribute name is all that's allowed, no full item definitions.
-				If an item is consumed then it is assumed to be required.
-
-<Produce>		Creates new Items, and adds it to the global list of Items. If
-				the name of an already created Item is given, via the incomplete Item
-				tag, the <AttachTo> tag can be used to change its location.
-				Otherwise, a new Item must be defined in-line.
-
-<AlterRoom>		Change features of a Room, given its name as an attribute.
-				Items, Paths, and Commands can be created or removed within
+<Alter>			Change features of a either the player or a Room upon execution
+    <Player>	Items, Paths, and Commands can be created or removed within
 				<Create> and <Remove> tags blocks. <Remove> must be
-				given the name of a pre-defined object. <Create> can be given
+	<Room>		given the name of a pre-defined object. <Create> can be given
 				the name of a pre-defined object, or a new one can be created
-				in-line. All appropriate tags and parameters apply.
+				in-line. All appropriate tags and parameters apply.  By using
+				<Create> and <Remove> within a <Player> block only works with
+				Items and it directly effects the Player's inventory.  If you
+				want an item to be created but not added to the inventory right
+				away, you want to put it in a <Room> block instead.
 
 				By using <Name> and <Description>, one can alter both attributes
 				of the room. If	the <Name> is changed, all Items and Commands that 

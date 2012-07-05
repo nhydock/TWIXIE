@@ -12,63 +12,67 @@
         have smoothed their once-rough edges. Some bricks
         in the far wall seem a tad loose...">
         
-    <Produce>
-        <Item name="Loose Bricks"
-			description="Some bricks that appear to have been
-                loosened from the wall, probably by a
-                previous inmate...">
-
-            <Possess>false</Possess>
-
-            <AttachTo>Dungeon Cell</AttachTo>
-
-            <Command 
-				name="Move Loose Bricks"
-				message="You move aside the loose bricks to reveal...
-
-                    A key!">
-                <!--
-                    Does not require Loose Bricks, as the player can't have
-                    Loose Bricks; instead, the player must simply be in the same
-                    Room as the Loose Bricks.
-                -->
-
-                <Consume>
-					<Item name="Loose Bricks"/>
-				</Consume>
+    <Alter>
+		<Room>
+			<Create>
+				<Item name="Loose Bricks"
+					description="Some bricks that appear to have been
+						loosened from the wall, probably by a
+						previous inmate...">
+		   
+					<Possess>false</Possess>
+				</Item>
 				
-                <Produce>
-                    <Item name="Rusty Key"
-						description="A rusty key, it appears to have been
-                            hand-crafted...">
+				<Command 
+					name="Move Loose Bricks"
+					message="You move aside the loose bricks to reveal...
 
-                        <Possess>true</Possess>
+						A key!">
+					<!--
+						Does not require Loose Bricks, as the player can't have
+						Loose Bricks; instead, the player must simply be in the same
+						Room as the Loose Bricks.
+					-->
 
-                        <AttachTo>Dungeon Cell</AttachTo>
+					<Alter>
+						<Room>
+							<Remove>
+								<Item name="Loose Bricks"/>
+							</Remove>
+							
+							<Create>
+								 <Item name="Rusty Key"
+									description="A rusty key, it appears to have been
+										hand-crafted...">
 
-                        <Command name="Unlock cell door"
-							message="The door is now unlocked. You can now leave
-                                the cell!">
+									<Possess>true</Possess>
 
-                            <Location>Dungeon Cell</Location>
+									<Command name="Unlock cell door"
+										message="The door is now unlocked. You can now leave
+											the cell!">
 
-                            <Require>
-								<Item name="Rusty Key"/>
-							</Require>
-                            
-                            <Consume>
-								<Item name="Rusty Key"/>
-                            </Consume>
+										<Location>Dungeon Cell</Location>
 
-                            <AlterRoom name="Dungeon Cell">
-                                <Create>
-									<Path name="To hallway" destination="Hallway"/>
-                                </Create>
-                            </AlterRoom>
-                        </Command>
-                    </Item>
-                </ProduceItem>
-            </Command>
-        </Item>
-    </ProduceItem>
+										<Alter>
+											<Player>
+												<Remove>
+													<Item name="Rusty Key"/>
+												</Remove>
+											</Player>
+											
+											<Room>
+												<Create>
+													<Path name="Hallway"/>
+												</Create>
+											</Room>
+										</Alter>
+									</Command>
+								</Item>
+							</Create>
+						</Room>
+					</Alter>
+				</Command>
+			</Create>
+		</Room>
+    </Alter>
 </Command>

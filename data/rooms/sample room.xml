@@ -6,8 +6,8 @@
         in the hall outside. You hear some moaning in the
         distance, but aside from that, you are alone.">
         
-    <Command name = "Inspect walls"/>
-    <Item name = "Latrine"/>
-    <Item name = "Bed"/>
-    <Item name = "Cup"/>
+    <Command name = "Inspect walls" />
+    <Item name = "Latrine" />
+    <Item name = "Bed" />
+    <Item name = "Cup" />
 </Room>    

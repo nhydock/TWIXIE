@@ -6,6 +6,7 @@ class Scenario:
 	def __init__(self, path):
 		self.objects = []
 		self.commands = []
+		self.paths = []
 		self.message = ""
 		
 		#now we do the parsing of the xml file
@@ -40,6 +41,8 @@ class Scenario:
 				self.commands.append(getCommand(n.attrib["name"]))
 		"""
 		
+		self.paths = [n.attrib["name"] for n in root.findall("Path")]
+		
 	#gets a list of objects within the room that
 	#can be looked at
 	def getObjects(self):
@@ -53,4 +56,4 @@ class Scenario:
 	#gets the room description for displaying on
 	#the screen when describing things
 	def getMessage(self):
-		return self.message	
+		return self.message

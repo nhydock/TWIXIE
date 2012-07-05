@@ -5,7 +5,7 @@
     
     <Possess>false</Possess>
     
-    <-- Example of nested creation of Command in Use override./-->
+    <!-- Example of nested creation of Command in Use override./-->
     <Use>
         <Command name="Use Latrine"
 			message="You use the latrine. You feel much better.
