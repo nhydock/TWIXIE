@@ -24,9 +24,9 @@ from math import *
 
 import Input
 
-INTERNAL_RESOLUTION = [1024.0, 768.0] #resolution at which the engine actually renders at
+INTERNAL_RESOLUTION = [1024.0, 600.0] #resolution at which the engine actually renders at
 SOFTWARE = 0	#Basic software rendering mode for pygame
-HARDWARE = pygame.OPENGL | pygame.DOUBLEBUF | pygame.HWSURFACE	#Hardware rendering mode for pygame
+HARDWARE = pygame.OPENGL | pygame.DOUBLEBUF | pygame.HWSURFACE | pygame.HWPALETTE	#Hardware rendering mode for pygame
 
 #basic template of what a scene may contain
 class Scene:
@@ -82,27 +82,27 @@ class Viewport:
         glViewport(0, 0, self.resolution[0], self.resolution[1])
 
 		#enable the lighting and colour materials so things don't show up black
-        glEnable (GL_LIGHTING)
-        glEnable (GL_LIGHT0)
-        glColorMaterial ( GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE )
-        glEnable ( GL_COLOR_MATERIAL )
-        glShadeModel(GL_SMOOTH)
+        #glEnable (GL_LIGHTING)
+        #glEnable (GL_LIGHT0)
+        #glColorMaterial ( GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE )
+        #glEnable ( GL_COLOR_MATERIAL )
+        #glShadeModel(GL_SMOOTH)
         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA)
         glEnable(GL_BLEND)
         #we clear the buffer to a black colour
         glClearColor(0.0, 0.0, 0.0, 0.0)
-        glClearDepth(1.0)
-        glEnable(GL_DEPTH_TEST)
+        #glClearDepth(1.0)
+        #glEnable(GL_DEPTH_TEST)
         glEnable(GL_ALPHA_TEST)
-        glDepthFunc(GL_LEQUAL)
+        #glDepthFunc(GL_LEQUAL)
         glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST)
         glAlphaFunc(GL_NOTEQUAL,0.0)
 		
 		#eanble the texturing so all our images and font show up
         glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE)
         glEnable(GL_TEXTURE_2D)
-        glEnable(GL_FOG)
-        glEnable(GL_LIGHTING)
+        #glEnable(GL_FOG)
+        #glEnable(GL_LIGHTING)
         
     #creates a projection with perspective
     def setPerspectiveProjection(self):
@@ -124,7 +124,7 @@ class Viewport:
         #pan over to the proper position based on the camera's focus point
         glTranslatef(-self.camera.focusx, -self.camera.focusy, 1.0)
         #zoom in on the scene based on the camera's zoom focus
-        #glScalef(self.camera.zoom/DEFAULT_ZOOM, self.camera.zoom/DEFAULT_ZOOM, 1.0)
+        glScalef(self.camera.zoom/DEFAULT_ZOOM, self.camera.zoom/DEFAULT_ZOOM, 1.0)
         
     #resets the projection and its matrix so things don't stack from changing projections
     def resetProjection(self):
