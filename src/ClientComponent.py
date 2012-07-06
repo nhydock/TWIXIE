@@ -98,8 +98,16 @@ class ClientComponent(Scene):
 	def render(self, visibility):
 		currentScene = self.engine.getScenario()
 
-		#renders the currentScene's data to the buffer
-		#currentScene.render(self.internal_buffer)
+		#renders the currentScene's picture to the screen
+		background = currentScene.getImage()
+		#place the background in the center of the screen
+		background.setPosition(IRES[0]/2, IRES[1]/2)
+		#scale the background to the size of the window
+		background.setScale(min(background.pixelSize[0], IRES[0]), min(background.pixelSize[1], IRES[1]), True)	
+		#give the image a hue
+		background.setColor(TEXT_COLOR)
+		#now the image should fill the background of the window
+		background.draw()
 		
 		#renders the text command to the screen
 		

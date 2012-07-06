@@ -9,7 +9,7 @@ import sys
 
 from View import Viewport, HARDWARE
 
-_output_resolution = [800, 600]		#size that the engine will output for viewing and interacting
+_output_resolution = [800, 480]		#size that the engine will output for viewing and interacting
 
 FPS = 60
 
