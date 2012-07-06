@@ -38,12 +38,12 @@ class CommandParser:
 		command = None
 		#default show message that thinks the command is wrong
 		self.engine.show("What are you even trying to do?")
-		#try:
-		#check against globally known commands and against room/scenario specific commands
-		for c in global_commands+self.engine.getScenario().getCommands():
-			if str(c) in s: #look for the name of the command in the string
-				c.execute(s)
-				return
-		#except Exception as e:
-		#	print e
-		#	pass
+		try:
+			#check against globally known commands and against room/scenario specific commands
+			for c in global_commands+self.engine.getScenario().getCommands():
+				if str(c) in s: #look for the name of the command in the string
+					c.execute(s)
+					return
+		except Exception as e:
+			print e
+		

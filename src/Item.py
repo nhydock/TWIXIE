@@ -38,10 +38,13 @@ def loadItem(node):
 	if node is None:
 		return None
 	
-	if len(node) > 0:
+	if len(node) > 0 and type(node) is not str:
 		return Item(node)
 	else:
-		name = node.attrib["name"].lower()
+		if type(node) is not str:
+			name = node.attrib["name"].lower()
+		else:
+			name = node.lower()
 		for item in Item.cache:
 			if name == str(item):
 				return item

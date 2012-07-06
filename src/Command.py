@@ -25,7 +25,10 @@ class Command(TwiObj):
 		#get all the items required before using
 		#required items must be able to be held in the inventory
 		requireNode = node.find("Requires")
-		self.requirements = [n.attrib["name"].lower() for n in node.findall("Item")]
+		self.requirements = []
+		if requireNode is not None:
+			for n in requireNode.findall("Item"):
+				self.requirements.append(n.attrib["name"].lower())
 		
 		#node of all things that are altered by the command
 		self.alterNode = node.find("Alter")
@@ -38,14 +41,14 @@ class Command(TwiObj):
 				#we remove things
 				#we don't need item objects for removing items, we just need their names since you can only remove references
 				removeNode = alterPlayer.find("Remove")
-				if removeNode:
+				if removeNode is not None:
 					self.alterPlayer[0] = [n.attrib["name"].lower() for n in removeNode.findall("Item")]
 					self.requirements += self.alterPlayer[0]	#add all items that are removed from the player to the list of requirements
 		
 				#we create items that the player automatically possesses
 				#in the case of adding items, we need to actually have an item instance added
 				createNode = alterPlayer.find("Create")
-				if createNode:
+				if createNode is not None:
 					self.alterPlayer[1] = [n.attrib["name"].lower() for n in createNode.findall("Item")]
 			
 			self.alterRooms = {}
@@ -219,6 +222,7 @@ class PickUp(Command):
 				#add the item to the player's inventory if it can be possessed
 				if item.possess:
 					engine.getPlayer().addItem(item)
+					itemsInRoom.remove(item)	#remove the item from the room after placing it in your inventory
 					engine.show("You picked up the " + str(item))
 				#display an error if the item can not be possessed
 				else:
@@ -253,12 +257,14 @@ def loadCommand(node):
 		return None
 		
 	#if a node with more than just the name attribute defined, then load a new command
-	if len(node) > 0:
+	if len(node) > 0 and type(node) is not str:
 		return Command(node)
 	#else retrieve one that has already been created by its name 
 	else:
-		name = node.attrib["name"].lower()	#make sure it's in the right case
-		print name
+		if type(node) is not str:
+			name = node.attrib["name"].lower()
+		else:
+			name = node.lower()
 		for n in Command.cache:
 			if name == str(n):
 				return n
