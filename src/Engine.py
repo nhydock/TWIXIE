@@ -1,7 +1,7 @@
-from CommandParser import CommandParser;
-from Scenario import Scenario;
+from CommandParser import CommandParser
+from Scenario import getRoom
 
-_initial_scenario = "sample room"	#the first scenario the game should start in
+_initial_scenario = "Dungeon Cell"	#the first scenario the game should start in
 
 _instance = None	#singleton instance
 
@@ -15,7 +15,7 @@ except ImportError:
 def getInstance():
 	global _instance
 	if _instance is None:
-		_instance = Engine()
+		Engine()
 	return _instance
 	
 #Engine is the main logic container of the game
@@ -23,8 +23,7 @@ def getInstance():
 class Engine:		
 	#initializes the engine to starting game position
 	def __init__(self):
-		#current scenario
-		self.scenario = Scenario(_initial_scenario)	
+		self.scenario = None
 		
 		#message to display to screen
 		self.message = None
@@ -37,7 +36,12 @@ class Engine:
 		#stores their inventory, score, and other things for them
 		self.player = Player()
 		
-	def startGame():
+		global _instance
+		_instance = self
+		
+		self.startGame()
+		
+	def startGame(self):
 		self.setScenario(_initial_scenario)
 	
 	#loads data to a previously saved point
@@ -59,8 +63,9 @@ class Engine:
 	# @return true if a new scenario is set
 	#		  false if the sceneraio does not change
 	def setScenario(self, s):
-		if self.scenario.__name__() is not s:
-			self.scenario = Scenario(s)
+		if self.scenario is None or str(self.scenario) != s:
+			self.scenario = getRoom(s)
+			print self.scenario
 			#after loading a new room, tell the parser to look at the room
 			self.parser.addLetter("look")
 			self.parser.execute()	
@@ -116,14 +121,27 @@ class Player:
 	
 	#adds an item to the inventory
 	def addItem(self, item):
+		if type(item) is str:
+			from Item import loadItem
+			item = loadItem(item)
 		self.inventory.append(item)
 		
 	#check if the player has the item
 	def hasItem(self, item):
-		return self.inventory.count(item) > 0
+		if type(item) is str:
+			from Item import loadItem
+			item = loadItem(item)
+		return item in self.inventory
 	
 	#removes the item from the inventory
 	#this is usually called after an item is used
 	#and is no longer required in the story
 	def removeItem(self, item):
+		if type(item) is str:
+			from Item import loadItem
+			item = loadItem(item)
 		return self.inventory.remove(item)
+		
+	#gets the entire inventory for looking at a list of what the player has
+	def getInventory(self):
+		return self.inventory

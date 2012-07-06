@@ -1,5 +1,5 @@
 
-from Command import global_commands, getCommand
+from Command import global_commands
 import string
 
 #universal parser for the game
@@ -33,15 +33,17 @@ class CommandParser:
 		#ensure it's lower case, all commands should be registered in lower case so then case doesn't matter
 		s = self.getCurrentTypedMessage().lower() 
 		self.typed = []	#clear the command when it goes to execute
-
+		print s
+		
 		command = None
 		#default show message that thinks the command is wrong
 		self.engine.show("What are you even trying to do?")
-		try:
-			#check against globally known commands and against room/scenario specific commands
-			for c in global_commands+self.engine.getScenario().getCommands():
-				if str(c) in s: #look for the name of the command in the string
-					c.execute(s)
-					return
-		except Exception:
-			pass
+		#try:
+		#check against globally known commands and against room/scenario specific commands
+		for c in global_commands+self.engine.getScenario().getCommands():
+			if str(c) in s: #look for the name of the command in the string
+				c.execute(s)
+				return
+		#except Exception as e:
+		#	print e
+		#	pass

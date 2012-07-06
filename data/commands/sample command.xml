@@ -26,11 +26,11 @@
 				</Item>
 				
 				<Command name="Move Loose Bricks">
-					<Description>
+					<Message>
 						You move aside the loose bricks to reveal...
 
 						A key!
-					</Description>
+					</Message>
 					<!--
 						Does not require Loose Bricks, as the player can't have
 						Loose Bricks; instead, the player must simply be in the same
@@ -52,29 +52,28 @@
 
 									<Possess>true</Possess>
 
-									<Command name="Unlock cell door">
-										<Message>
-											The door is now unlocked. You can now leave
-											the cell!
-										</Message>
-
-										<Location>Dungeon Cell</Location>
-
-										<Alter>
-											<Player>
-												<Remove>
-													<Item name="Rusty Key"/>
-												</Remove>
-											</Player>
-											
-											<Room>
-												<Create>
-													<Path name="Hallway"/>
-												</Create>
-											</Room>
-										</Alter>
-									</Command>
 								</Item>
+								
+								<Command name="Unlock cell door">
+									<Message>
+										The door is now unlocked. You can now leave
+										the cell!
+									</Message>
+
+									<Alter>
+										<Player>
+											<Remove>
+												<Item name="Rusty Key"/>
+											</Remove>
+										</Player>
+										
+										<Room>
+											<Create>
+												<Path name="Hallway"/>
+											</Create>
+										</Room>
+									</Alter>
+								</Command>
 							</Create>
 						</Room>
 					</Alter>
