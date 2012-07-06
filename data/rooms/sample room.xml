@@ -6,6 +6,8 @@
         in the hall outside. You hear some moaning in the
         distance, but aside from that, you are alone.
     </Description>
+    
+    <Background path="sample.png" />
         
     <Command name = "Inspect walls" />
     <Item name = "Latrine" />
