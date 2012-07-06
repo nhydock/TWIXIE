@@ -3,6 +3,7 @@ from Command import Command, loadCommand
 import os
 from TwiObj import TwiObj
 import glob
+from ImgObj import ImgObj
 
 #Room object
 #Rooms are where all the action happens
@@ -39,6 +40,7 @@ class Scenario(TwiObj):
 		
 		self.paths = [n.attrib["name"] for n in node.findall("Path")]
 		
+		self.setImage(node.find("Background").attrib["path"])
 		Scenario.cache.append(self)
 		
 	#gets a list of objects within the room that
@@ -54,7 +56,14 @@ class Scenario(TwiObj):
 	#gets all the paths available to take
 	def getPaths(self):
 		return paths
+		
+	#image representation of the current scene
+	def getImage(self):
+		return self.image
 
+	#sets the background image to draw for the scene
+	def setImage(self, imageName):
+		self.image = ImgObj(os.path.join("images", imageName))
 
 #gets a preloaded room
 def getRoom(name):
@@ -65,7 +74,6 @@ def getRoom(name):
 	name = name.lower() #ensure right casing
 	print "Room is search of :" + name
 	for room in Scenario.cache:
-		print str(room)
 		if name == str(room):
 			print "found room"
 			return room
