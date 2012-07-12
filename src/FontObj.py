@@ -18,9 +18,6 @@ from pygame.locals import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
 
-import numpy as np
-from numpy import array, float32
-
 from Texture import Texture #create Textures specifically instead of loadTexture because surfaces can't be cached
 
 import string
@@ -31,14 +28,15 @@ CENTER = 1
 RIGHT  = 2
 
 #set up the generic texture array
-TEX_ARRAY = np.zeros((4,2), dtype=float32)
+TEX_ARRAY = [0.0]*8
+print TEX_ARRAY
 
 #top left, top right, bottom right, bottom left
 #texture coordinates
-TEX_ARRAY[0,0] = 0; TEX_ARRAY[0,1] = 0
-TEX_ARRAY[1,0] = 1; TEX_ARRAY[1,1] = 0
-TEX_ARRAY[2,0] = 1; TEX_ARRAY[2,1] = 1
-TEX_ARRAY[3,0] = 0; TEX_ARRAY[3,1] = 1
+TEX_ARRAY[0] = 0; TEX_ARRAY[1] = 0
+TEX_ARRAY[2] = 1; TEX_ARRAY[3] = 0
+TEX_ARRAY[4] = 1; TEX_ARRAY[5] = 1
+TEX_ARRAY[6] = 0; TEX_ARRAY[7] = 1
 
 #FontObj are of the UlDunAd Rendering family with Texture, ImgObj, and WindowObj
 # it extends directly from pygame for a familiar API but handles all rendering
@@ -51,16 +49,19 @@ class FontObj(pygame.font.Font):
 	def __init__(self, path, size = 32):
 		super(FontObj, self).__init__(os.path.join("..", "data", "fonts", path), size)
 		
+		#generates all the glyphs for use
 		self.generateGlyphs()
 
 		#attributes
-		self.scale     = (1.0, 1.0)             #image bounds (width, height)
-		self.position  = (0,0)                  #where in the window it should render
-		self.angle     = 0                      #angle which the image is drawn
-		self.color     = (255,255,255,255)      #colour of the image
-		self.alignment = 1                      #alignment of the text (left, center , right)
-		self.shadow = True                      #does the font project a shadow
+		self.scale     = 1.0            	 #scaling percentage based on font height
+		self.position  = (0,0)               #where in the window it should render
+		self.angle     = 0                   #angle which the font is drawn
+		self.color     = (255,255,255,255)   #colour of the font
+		self.alignment = 1                   #alignment of the text (left, center , right)
+		self.shadow = True                   #does the font project a shadow
 
+	#gets the natural width of the string in pixels
+	#this means that scale is not taken into factor when determining width
 	def stringWidth(self, string):
 		s = 0
 		for i in list(string):
@@ -85,29 +86,29 @@ class FontObj(pygame.font.Font):
 			glPushMatrix()
 
 			#generate the vertex array
-			vtxArray = np.zeros((4,3), dtype=float32)
+			vtxArray = [0.0]*8
 			pixelSize = self.glyphTex[i].pixelSize
 			halfPS = (float(pixelSize[0])/2.0, float(pixelSize[1])/2.0)
 
-			vtxArray[0,0] = 0;            vtxArray[0,1] =  halfPS[1]
-			vtxArray[1,0] = pixelSize[0]; vtxArray[1,1] =  halfPS[1]
-			vtxArray[2,0] = pixelSize[0]; vtxArray[2,1] = -halfPS[1]
-			vtxArray[3,0] = 0;            vtxArray[3,1] = -halfPS[1]
+			vtxArray[0] = 0;            vtxArray[1] =  halfPS[1]
+			vtxArray[2] = pixelSize[0]; vtxArray[3] =  halfPS[1]
+			vtxArray[4] = pixelSize[0]; vtxArray[5] = -halfPS[1]
+			vtxArray[6] = 0;            vtxArray[7] = -halfPS[1]
 			
 			#bind and render the glyph
 			self.glyphTex[i].bind()
 
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY)
 			glEnableClientState(GL_VERTEX_ARRAY)
-			glVertexPointerf(vtxArray)
-			glTexCoordPointerf(TEX_ARRAY)
-			glDrawArrays(GL_QUADS, 0, vtxArray.shape[0])
+			glVertexPointer(2, GL_FLOAT, 0, vtxArray)
+			glTexCoordPointer(2, GL_FLOAT, 0, TEX_ARRAY)
+			glDrawArrays(GL_QUADS, 0, 8)
 			glDisableClientState(GL_VERTEX_ARRAY)
 			glDisableClientState(GL_TEXTURE_COORD_ARRAY)
 
 			glPopMatrix()
 						
-			#shift the character over a little so it won't overlap with other letters
+			#shift the character over a little extra so the next won't overlap with other letters
 			glTranslatef(self.glyphTex[i].pixelSize[0] + 2, 0, 0)
 
 			glEndList()
@@ -125,12 +126,8 @@ class FontObj(pygame.font.Font):
 		self.position = (self.position[0] + x, self.position[1] + y)
 
 	#changes the size of the image and scales the surface
-	def setScale(self, width, height):
-		if self.scale[0] != width and self.scale[1] != height:
-			if (width >= 0 and width <= 1) and (height >= 0 and height <= 1):
-				self.scale = (width,height)
-			else:
-				self.scale = (float(width)/float(self.pixelSize[0]), float(height)/float(self.pixelSize[1]))
+	def setSize(self, size):
+		self.scale = size/float(self.getsize())
 		
 	#rotates the image to the angle
 	def setAngle(self, angle):
@@ -156,7 +153,7 @@ class FontObj(pygame.font.Font):
 		return False
 
 	#finally draws the image to the screen
-	def render(self, text, antialias = True, color = None, background = None):
+	def render(self, text, antialias = True, color = None, background = None, window = None):
 		#submethod for rendering the text in its proper settings
 		#this is used so then shadows and other text effects that require rendering multiple times can
 		# just be easily called
@@ -167,14 +164,17 @@ class FontObj(pygame.font.Font):
 			glPushMatrix()
 			
 			#set the position based on alignment
-			x = position[0]
-			if self.alignment == 0:
-				x += self.font.size(text)[0]/2.0
-			elif self.alignment == 2:
-				x -= self.font.size(text)[0]/2.0
+			if window is not None:
+				x = window.getX
+			else:
+				x = position[0]
+				if self.alignment == 0:
+					x += self.font.size(text)[0]/2.0
+				elif self.alignment == 2:
+					x -= self.font.size(text)[0]/2.0
 
 			glTranslatef(x, position[1],-.1)	#first we move the font into the proper position
-			glScalef(scale[0], scale[1], 1.0)	#then we scale it up
+			glScalef(scale, scale, 1.0)			#then we scale it up/down
 			glRotatef(angle, 0, 0, 1)			#then we rotate it
 			glColor4f(*color)					#and finally we apply the colour
 

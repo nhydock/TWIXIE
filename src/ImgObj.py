@@ -1,24 +1,16 @@
 '''
 
-2010 Nicholas Hydock
-UlDunAd
-Ultimate Dungeon Adventure
+2012 Nicholas Hydock
+TWIXIE
+Typed-Word Invokable Xenomorphic Incident Engine
 
 Licensed under the GNU General Public License V3
-     http://www.gnu.org/licenses/gpl.html
+http://www.gnu.org/licenses/gpl.html
 
 '''
 
-import pygame
-from pygame.locals import *
-
 from OpenGL.GL import *
 from OpenGL.GLU import *
-
-import numpy as np
-from numpy import array, float32
-
-import array
 
 from math import *
 
@@ -29,17 +21,17 @@ CENTER = 1
 RIGHT  = 2
 
 #an Image Object for rendering and collision detection (mouse)
-class ImgObj:
-    clickableObjs = []  #images that are clickable
+class ImgObj(object):
     
-    def __init__(self, texture, boundable = False, frameX = 1, frameY = 1):
+    def __init__(self, texture, frameX = 1, frameY = 1):
+        #ability to set/load a texture if the passed in value is not a Texture object
         if isinstance(texture, str):
             self.texture = loadTexture(path = texture)
         elif isinstance(texture, pygame.Surface):
             self.texture = loadTexture(surface = texture)
         else:
             self.texture = texture
-        
+       
         #attributes
         self.scale       = (1.0, 1.0)               #image bounds (width, height)
         self.position    = (0,0)                    #where in the window it should render
@@ -58,21 +50,8 @@ class ImgObj:
         self.width, self.height = self.pixelSize    #the width and height after transformations
                                                     # are taken into account
 
-        self.isBoundable = boundable                #is the picture one that can be read for mouse detection
-        if self.isBoundable:                        #if it is then append to the list of clickable objects
-            ImgObj.clickableObjs.append(self)
-            
-        self.bounds  = (0.0, 1.0, 0.0, 1.0)         #the bounds of the picture
-        self.tBounds = []
-
         self.createArrays()
-        
-        #first is position, second is angle
-        self.rates = [[0.0,0.0, 100.0],
-					   [0.0, 100.0]]
-        self.targets = [[0.0,0.0],
-						[0.0]]
-                        
+                       
         #for animation purposes
         self.frames = [frameX, frameY]      #number of frames (x axis, y axis)
         self.currentFrame = [0, 0]          #current frame
@@ -80,15 +59,17 @@ class ImgObj:
         self.reverseH = False               #   reverse along frameX
         self.reverseV = False               #   reverse along frameY
         
-        self.transformed = False                    #did the image's attributes change
-
+        self.transformed = False            #did the image's attributes change
+    
+        #OPENGL DISPLAY LIST
+        self.listBase = None
+        
     #sets up the vertex and texture array coordinates
     def createArrays(self):
         # numpy zeros is used because it can generate an array that can
         # be used for assigning coordinates to quite quickly
-        self.vtxArray = np.zeros((4,3), dtype=float32)
-        self.texArray = np.zeros((4,2), dtype=float32)
-        self.indexArray = [0,1,2,3]
+        self.vtxArray = [0.0]*8
+        self.texArray = [0.0]*8
 
         self.createVerts()
         self.createTex()
@@ -97,18 +78,12 @@ class ImgObj:
     def createVerts(self):
         vtxArray = self.vtxArray
 
-        #top left, top right, bottom right, bottom left
-
         #vertices
-        # by using these numbers pictures are now moved by the center
-        # coordinate instead of the top left.  I, personally, find it
-        # easier to use.
-        halfPS = (float(self.pixelSize[0])/2.0, float(self.pixelSize[1])/2.0)
-
-        vtxArray[0,0] = -halfPS[0]; vtxArray[0,1] =  halfPS[1]
-        vtxArray[1,0] =  halfPS[0]; vtxArray[1,1] =  halfPS[1]
-        vtxArray[2,0] =  halfPS[0]; vtxArray[2,1] = -halfPS[1]
-        vtxArray[3,0] = -halfPS[0]; vtxArray[3,1] = -halfPS[1]
+        #top left, top right, bottom right, bottom left
+        vtxArray[0] = 0; vtxArray[1] = 0
+        vtxArray[2] = self.pixelSize[0]; vtxArray[3] = 0
+        vtxArray[4] = self.pixelSize[0]; vtxArray[5] = self.pixelSize[1]
+        vtxArray[6] = 0; vtxArray[7] = self.pixelSize[1]
 
     #set up texture coordinates
     def createTex(self):
@@ -120,63 +95,40 @@ class ImgObj:
         #top left, top right, bottom right, bottom left
 
         #texture coordinates
-        texArray[0,0] = rect[0]; texArray[0,1] = rect[1]
-        texArray[1,0] = rect[2]; texArray[1,1] = rect[1]
-        texArray[2,0] = rect[2]; texArray[2,1] = rect[3]
-        texArray[3,0] = rect[0]; texArray[3,1] = rect[3]
+        texArray[0] = rect[0]; texArray[1] = rect[1]
+        texArray[2] = rect[2]; texArray[3] = rect[1]
+        texArray[4] = rect[2]; texArray[5] = rect[3]
+        texArray[6] = rect[0]; texArray[7] = rect[3]
 
+    #sets up a display list to make rendering more optimized
+    def createDisplayList(self):
+        #create the base location of the list
+        self.listBase = glGenLists(1)
+		
+        #start creating the new list
+        glNewList(self.listBase+1, GL_COMPILE)
+			
+        glPushMatrix()
+        
+        #performs GL operations to render the plane
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY)
+        glEnableClientState(GL_VERTEX_ARRAY)
+        glVertexPointer(2, GL_FLOAT, 0, self.vtxArray)
+        glTexCoordPointer(2, GL_FLOAT, 0, self.texArray)
+        glDrawArrays(GL_QUADS, 0, 8)
+        glDisableClientState(GL_VERTEX_ARRAY)
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY)
+
+        glPopMatrix()
+
+        #end generating the list
+        glEndList()
+        
     #changes the position of the image to x, y
     def setPosition(self, x, y):
         if not self.position == (x, y):
             self.position = (x, y)
             self.transformed = True
-
-    #=====FUNCTIONING BUT SLOW, CALCULATIONS NEED FIXING=====
-    #calculates the rates for sliding and spinning
-    def calculateRates(self):
-        calcRate = self.rates[0][2]
-        if self.currentFrame < self.rates[0][2]:
-            calcRate = self.rates[0][2] - self.currentFrame[0]
-        else:
-            self.currentFrame[0] = 0
-        self.rates[0][0] = (self.targets[0][0] - self.position[0])/calcRate
-        self.rates[0][1] = (self.targets[0][1] - self.position[1])/calcRate 
-        
-        calcRate = self.rates[1][1]
-        if self.currentFrame < self.rates[1][1]:
-            calcRate = self.rates[1][1] - self.currentFrame[1]
-        else:
-            self.currentFrame[1] = 0
-        self.rates[1][0] = (self.targets[1] - self.angle)/calcRate
-
-    #moves the image from its current position by x and y
-    # milliseconds defines how long you want it to take to
-    # slide to the new position.		
-    def slide(self, x, y, milliseconds = 32.0):
-        if self.targets[0] != [x,y]:
-            self.targets[0] = [x,y]
-            self.rates[0][2] = milliseconds
-            self.calculateRates()
-        else:
-            if self.currentFrame[0] < self.rates[0][2]:
-                self.position = (self.position[0] + self.rates[0][0],
-								 self.position[1] + self.rates[0][1])
-                self.currentFrame[0] += 1
-            else:
-                self.position = (x, y)
-    #smoothly rotates the image to this angle in this many frames
-    def spin(self, angle, milliseconds = 32.0):
-
-        if self.targets[1] != angle:
-            self.targets[1] = angle
-            self.rates[1][1] = milliseconds
-            self.calculateRates()
-        else:
-            if self.currentFrame[1] < self.rates[1][1]:
-                self.angle += self.rates[1][0]
-                self.currentFrame[1] += 1
-            else:
-                self.angle = angle
                     
     #changes the size of the image and scales the surface
     def setScale(self, width = 1.0, height = 1.0, inPixels = False):
@@ -233,19 +185,6 @@ class ImgObj:
         for i in range(len(self.color)):
             self.color[i] = float(color[i])
 
-    #fades from the current color to the new color in the set amount of time
-    # remember that the color must be in RGBA format
-    def fade(self, color, milliseconds):
-        color = [float(c) for c in color]   #makes sure the color is an array of floats
-        if list(self.color) != color:
-            self.color = [self.color[i] + (color[i] - self.color[i])/milliseconds for i in range(len(self.color))]
-            return True
-        return False
-        
-    #change whether or not the image can be treated as a button
-    def setBoundable(self, boundable):
-        self.isBoundable = boundable
-
     #changes the frame number of the image
     def setFrame(self, x = 1, y = 1):
         self.currentFrame = [x, y]
@@ -256,37 +195,24 @@ class ImgObj:
     def setRect(self, rect):
         self.rect = rect
         self.createTex()
+        self.createDisplayList()
         
     #sets where the image is anchored (left, center, or right)
     def setAlignment(self, alignment):
-        alignment = alignment.upper()
-        self.alignment = eval(alignment)
-
-    #very simple collision detection
-    #does not work with rotations
-    def getCollision(self, point):
-        
-        if self.alignment == 0:     #left
-            x1 = self.position[0]
-        elif self.alignment == 2:   #right
-            x1 = self.position[0] - self.width
-        else:                       #center
-            x1 = self.position[0] - self.width/2.0
-        x2 = x1 + self.width
-        y = self.position[1] - self.height/2.0
-        
-        #print (x1, y2, x2-x1, y2-y1)
-        #print (x1, x2, y1, y2)
-        rect = pygame.Rect(x1, y, x2-x1, y+self.height)
-        
-        return rect.collidepoint(point)
+        if type(alignment) is str:
+            alignment = alignment.upper()
+            self.alignment = eval(alignment)
+        elif alignment.isNumeric():
+            self.alignment = alignment
         
     #finally draws the image to the screen
     def draw(self):
+    
+        #create a display list if one hasn't been made yet
+        if self.listBase == None:
+            self.createDisplayList()
 
         glPushMatrix()
-
-        glColor4f(*self.color)
 
         x = self.position[0]
         if self.alignment == 0:
@@ -297,16 +223,10 @@ class ImgObj:
             
         glScalef(self.scale[0], self.scale[1], 1.0)
         glRotatef(-self.angle, 0, 0, 1)
-        
+        glColor4f(*self.color)
+
         self.texture.bind()
 
-        glEnableClientState(GL_TEXTURE_COORD_ARRAY)
-        glEnableClientState(GL_VERTEX_ARRAY)
-        glVertexPointerf(self.vtxArray)
-        glTexCoordPointerf(self.texArray)
-        glDrawElements(GL_QUADS, len(self.indexArray), GL_UNSIGNED_BYTE, self.indexArray)
-        glDisableClientState(GL_VERTEX_ARRAY)
-        glDisableClientState(GL_TEXTURE_COORD_ARRAY)
-
+        glCallList(self.listBase+1)
+        
         glPopMatrix()
-
