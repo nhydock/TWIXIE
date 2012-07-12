@@ -16,6 +16,8 @@ from math import *
 
 from Texture import loadTexture
 
+import pygame
+
 LEFT   = 0
 CENTER = 1
 RIGHT  = 2
@@ -40,18 +42,14 @@ class ImgObj(object):
         
         self.frameSize   = (1.0/float(frameX),1.0/float(frameY))
                                                     #the size of each cell when divided into frames
-        self.rect        = (0.0,0.0,self.frameSize[0],self.frameSize[1])
-                                                    #left, top, right, bottom, crops the texture
-        self.alignment  = CENTER                   #alignment of the vertices for placement
+        self.alignment  = CENTER                    #alignment of the vertices for placement
         self.pixelSize   = (self.texture.pixelSize[0]/frameX,
                             self.texture.pixelSize[1]/frameY)   
                                                     #the actual size of the image in pixels
                                                     
         self.width, self.height = self.pixelSize    #the width and height after transformations
                                                     # are taken into account
-
-        self.createArrays()
-                       
+                
         #for animation purposes
         self.frames = [frameX, frameY]      #number of frames (x axis, y axis)
         self.currentFrame = [0, 0]          #current frame
@@ -65,48 +63,66 @@ class ImgObj(object):
         self.listBase = None
         
     #sets up the vertex and texture array coordinates
-    def createArrays(self):
+    def __createArrays__(self):
         # numpy zeros is used because it can generate an array that can
         # be used for assigning coordinates to quite quickly
         self.vtxArray = [0.0]*8
         self.texArray = [0.0]*8
 
-        self.createVerts()
-        self.createTex()
+        #verts are same for all
+        self.__createVerts__()
+           
+        #create the base location of the list
+        self.listBase = glGenLists(self.frames[0]*self.frames[1])
+		
+        #texture coordinates vary on frame, and as a result so do the display lists
+        for x in xrange(self.frames[0]):
+            for y in xrange(self.frames[1]):
+                self.__createTex__(x, y)
+                self.__createDisplayList__(x+(y*self.frames[0]))
 
     #set up vertex coordinates
-    def createVerts(self):
+    def __createVerts__(self):
         vtxArray = self.vtxArray
 
         #vertices
-        #top left, top right, bottom right, bottom left
-        vtxArray[0] = 0; vtxArray[1] = 0
-        vtxArray[2] = self.pixelSize[0]; vtxArray[3] = 0
-        vtxArray[4] = self.pixelSize[0]; vtxArray[5] = self.pixelSize[1]
-        vtxArray[6] = 0; vtxArray[7] = self.pixelSize[1]
+        #top left
+        vtxArray[0] = 0
+        vtxArray[1] = 0
+        #top right
+        vtxArray[2] = self.pixelSize[0]
+        vtxArray[3] = vtxArray[1]
+        #bottom right
+        vtxArray[4] = vtxArray[2]
+        vtxArray[5] = self.pixelSize[1]
+        #bottom left
+        vtxArray[6] = vtxArray[0]
+        vtxArray[7] = vtxArray[5]
 
     #set up texture coordinates
-    def createTex(self):
-        rect = self.rect    #not really necessary, it just saves on some typing
-                            #because I got sick of typing "self." all the time
-       
+    def __createTex__(self, x, y):
         texArray = self.texArray
-
-        #top left, top right, bottom right, bottom left
-
+        
         #texture coordinates
-        texArray[0] = rect[0]; texArray[1] = rect[1]
-        texArray[2] = rect[2]; texArray[3] = rect[1]
-        texArray[4] = rect[2]; texArray[5] = rect[3]
-        texArray[6] = rect[0]; texArray[7] = rect[3]
+
+        #top left
+        texArray[0] = self.frameSize[0]*x
+        texArray[1] = self.frameSize[1]*y
+        #top right
+        texArray[2] = texArray[0]+self.frameSize[0]
+        texArray[3] = texArray[1]
+        #bottom right
+        texArray[4] = texArray[2]
+        texArray[5] = texArray[1]+self.frameSize[1]
+        #bottom left
+        texArray[6] = texArray[0]
+        texArray[7] = texArray[5]
 
     #sets up a display list to make rendering more optimized
-    def createDisplayList(self):
-        #create the base location of the list
-        self.listBase = glGenLists(1)
-		
+    def __createDisplayList__(self, i):
+        
         #start creating the new list
-        glNewList(self.listBase+1, GL_COMPILE)
+        glNewList(self.listBase+i, GL_COMPILE)
 			
         glPushMatrix()
         
@@ -115,7 +131,7 @@ class ImgObj(object):
         glEnableClientState(GL_VERTEX_ARRAY)
         glVertexPointer(2, GL_FLOAT, 0, self.vtxArray)
         glTexCoordPointer(2, GL_FLOAT, 0, self.texArray)
-        glDrawArrays(GL_QUADS, 0, 8)
+        glDrawArrays(GL_QUADS, 0, len(self.vtxArray))
         glDisableClientState(GL_VERTEX_ARRAY)
         glDisableClientState(GL_TEXTURE_COORD_ARRAY)
 
@@ -188,15 +204,7 @@ class ImgObj(object):
     #changes the frame number of the image
     def setFrame(self, x = 1, y = 1):
         self.currentFrame = [x, y]
-        self.setRect((float(int(x)-1)*self.frameSize[0], float(int(y)-1)*self.frameSize[1], 
-                      float(int(x))*self.frameSize[0], float(int(y))*self.frameSize[1]))
 
-    #crops the texture
-    def setRect(self, rect):
-        self.rect = rect
-        self.createTex()
-        self.createDisplayList()
-        
     #sets where the image is anchored (left, center, or right)
     def setAlignment(self, alignment):
         if type(alignment) is str:
@@ -210,8 +218,8 @@ class ImgObj(object):
     
         #create a display list if one hasn't been made yet
         if self.listBase == None:
-            self.createDisplayList()
-
+            self.__createArrays__()
+            
         glPushMatrix()
 
         x = self.position[0]
@@ -221,12 +229,12 @@ class ImgObj(object):
             x -= float(self.pixelSize[0])/2.0
         glTranslatef(x, self.position[1], -.1)
             
-        glScalef(self.scale[0], self.scale[1], 1.0)
+        glScalef(self.scale[0], -self.scale[1], 1.0)
         glRotatef(-self.angle, 0, 0, 1)
         glColor4f(*self.color)
 
         self.texture.bind()
 
-        glCallList(self.listBase+1)
+        glCallList(self.listBase+int(self.currentFrame[0]+(self.currentFrame[1]*self.frames[0])))
         
         glPopMatrix()
