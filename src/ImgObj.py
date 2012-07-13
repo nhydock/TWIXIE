@@ -42,7 +42,8 @@ class ImgObj(object):
         
         self.frameSize   = (1.0/float(frameX),1.0/float(frameY))
                                                     #the size of each cell when divided into frames
-        self.alignment  = CENTER                    #alignment of the vertices for placement
+        self.alignment  = CENTER                    #alignment of the vertices horizontally for placement
+        self.valignment  = CENTER                   #alignment of the vertices vertically for placement
         self.pixelSize   = (self.texture.pixelSize[0]/frameX,
                             self.texture.pixelSize[1]/frameY)   
                                                     #the actual size of the image in pixels
@@ -52,7 +53,7 @@ class ImgObj(object):
                 
         #for animation purposes
         self.frames = [frameX, frameY]      #number of frames (x axis, y axis)
-        self.currentFrame = [0, 0]          #current frame
+        self.currentFrame = [1, 1]          #current frame
                                             #will reverse the animation when looping
         self.reverseH = False               #   reverse along frameX
         self.reverseV = False               #   reverse along frameY
@@ -76,8 +77,8 @@ class ImgObj(object):
         self.listBase = glGenLists(self.frames[0]*self.frames[1])
 		
         #texture coordinates vary on frame, and as a result so do the display lists
-        for x in xrange(self.frames[0]):
-            for y in xrange(self.frames[1]):
+        for y in xrange(self.frames[1]):
+            for x in xrange(self.frames[0]):
                 self.__createTex__(x, y)
                 self.__createDisplayList__(x+(y*self.frames[0]))
 
@@ -145,6 +146,15 @@ class ImgObj(object):
         if not self.position == (x, y):
             self.position = (x, y)
             self.transformed = True
+            
+    def getX(self):
+        return self.position[0]
+        
+    def getY(self):
+        return self.position[1]
+        
+    def getPosition(self):
+        return self.position
                     
     #changes the size of the image and scales the surface
     def setScale(self, width = 1.0, height = 1.0, inPixels = False):
@@ -213,6 +223,14 @@ class ImgObj(object):
         elif alignment.isNumeric():
             self.alignment = alignment
         
+    #sets where the image is anchored along its y axis
+    def setVAlignment(self, alignment):
+        if type(alignment) is str:
+            alignment = alignment.upper()
+            self.valignment = eval(alignment)
+        elif alignment.isNumeric():
+            self.valignment = alignment
+            
     #finally draws the image to the screen
     def draw(self):
     
@@ -222,19 +240,28 @@ class ImgObj(object):
             
         glPushMatrix()
 
+        #fix the x position based on alignment
         x = self.position[0]
         if self.alignment == 0:
             x += float(self.pixelSize[0])/2.0
         elif self.alignment == 2:
             x -= float(self.pixelSize[0])/2.0
-        glTranslatef(x, self.position[1], -.1)
             
-        glScalef(self.scale[0], -self.scale[1], 1.0)
+        #fix the y position based on vertical alignment
+        y = self.position[1]
+        if self.valignment == 0:
+            y += float(self.pixelSize[1])/2.0
+        elif self.alignment == 2:
+            y -= float(self.pixelSize[1])/2.0
+            
+        glTranslatef(x, y, -.1)
+            
+        glScalef(self.scale[0], self.scale[1], 1.0)
         glRotatef(-self.angle, 0, 0, 1)
         glColor4f(*self.color)
 
         self.texture.bind()
 
-        glCallList(self.listBase+int(self.currentFrame[0]+(self.currentFrame[1]*self.frames[0])))
+        glCallList(self.listBase+int((self.currentFrame[0]-1)+((self.currentFrame[1]-1)*self.frames[0])))
         
         glPopMatrix()
