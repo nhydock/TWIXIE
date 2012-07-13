@@ -14,95 +14,97 @@ from OpenGL.GLU import *
 
 from math import *
 
+from ImgObj import ImgObj
+
 #a window created to be used as a background for images
-class WinObj:
-    def __init__(self, texture, (width,height)=(64, 64)):
-        
-        self.texture = texture
-        self.texture.changeTexture(texture.textureSurface, False)
-        
-        #attributes
-        #over rides the width and height of the rect
-        self.width = width
+class WinObj(ImgObj):
+    def __init__(self, texture, width = 64, height = 64):
+        super(WinObj, self).__init__(texture, 3, 3)
         self.height = height
-        #overrides the rect position
-        self.left = 0
-        self.top = 0
+        self.width = width
         
-        self.color = [1.0,1.0,1.0,1.0]        #colour of the image RGBA (0 - 1.0)
-        
-        self.pixelSize   = self.texture.pixelSize   #the actual size of the image in pixels
-
-        self.__createArrays__()
-
-    #sets up the vertex and texture array coordinates
     def __createArrays__(self):
         # numpy zeros is used because it can generate an array that can
         # be used for assigning coordinates to quite quickly
-        self.vtxArray = [[0.0]*3]*16
-        self.texArray = [[0.0]*2]*16
-        print self.vtxArray
-        
-        #  0  1  2  3
-        #  4  5  6  7
-        #  8  9 10 11
-        # 12 13 14 15
-        self.indexArray = [0,   1,  5,  4,
-                           1,   2,  6,  5,
-                           2,   3,  7,  6,
-                           4,   5,  9,  8,
-                           5,   6, 10,  9,
-                           6,   7, 11, 10,
-                           8,   9, 13, 12,
-                           9,  10, 14, 13,
-                           10, 11, 15, 14]
+        self.vtxArray = [0.0]*8
+        self.texArray = [0.0]*8
 
+        #verts are same for all
         self.__createVerts__()
-        self.__createTex__()
-
-    #set up vertex coordinates
-    def __createVerts__(self):
-        vtxArray = self.vtxArray
-
-        #top left, top right, bottom right, bottom left
-
-        #vertices
-        border = 32
+           
+        #create the base location of the list
+        #there's an additional slot added to hold the entire frame assembled
+        self.listBase = glGenLists((self.frames[0]*self.frames[1]))
+		
+        #texture coordinates vary on frame, and as a result so do the display lists
+        for y in xrange(self.frames[1]):
+            for x in xrange(self.frames[0]):
+                self.__createTex__(x, y)
+                self.__createDisplayList__(x+(y*self.frames[0])+1)
+            
+        glNewList(self.listBase, GL_COMPILE)
+		
+		#Top left corner
+        glPushMatrix()
+        glTranslatef(0, 0, 1)
+        glCallList(self.listBase+1)
+        glPopMatrix()
         
-        xcoord = [0, border, self.width - border, self.width]
-        ycoord = [0, border, self.height - border, self.height]
-        index = 0
-        for i in range(4):
-            for n in range(4):
-                vtxArray[index][0] = xcoord[n]
-                vtxArray[index][1] = ycoord[i]
-                index += 1
-
-    #set up texture coordinates
-    def __createTex__(self):
-        texArray = self.texArray
-
-        #top left, top right, bottom right, bottom left
-
-        #texture coordinates
-        thirdPS  = (float(self.pixelSize[0])/3.0, float(self.pixelSize[1])/3.0)
-        coord = [0, 1.0/3.0, 2.0/3.0, 1.0]
-        index = 0
+        #Top middle
+        glPushMatrix()
+        glTranslatef(self.pixelSize[0], 0, 1)
+        glScalef((self.width-(self.pixelSize[0]*2))/self.pixelSize[0], 1, 1)
+        glCallList(self.listBase+2)
+        glPopMatrix()
         
-        for i in range(4):
-            for n in range(4):
-                texArray[index][0] = coord[n]
-                texArray[index][1] = coord[i]
-                index += 1
-
-    #changes the position of the image to x, y
-    #over rides Rect's moving
-    #position of the rect is based on top-left corner
-    #instead of returning a new rect, it just replaces the information about this one
-    def move(self, x, y):
-		self.left = x
-		self.top = y
+        #Top right corner
+        glPushMatrix()
+        glTranslatef(self.width-self.pixelSize[0], 0, 1)
+        glCallList(self.listBase+3)
+        glPopMatrix()
         
+        #Left Side
+        glPushMatrix()
+        glTranslatef(0, self.pixelSize[1], 1)
+        glScalef(1, (self.height - self.pixelSize[1]*2)/32.0, 1)
+        glCallList(self.listBase+4)
+        glPopMatrix()
+        
+        #Middle Piece
+        glPushMatrix()
+        glTranslatef(self.pixelSize[0], self.pixelSize[1], 1)
+        glScalef((self.width-(self.pixelSize[0]*2))/self.pixelSize[0], (self.height - self.pixelSize[1]*2)/32.0, 1)
+        glCallList(self.listBase+5)
+        glPopMatrix()
+        
+        #Right Side
+        glPushMatrix()
+        glTranslatef(self.width-self.pixelSize[0], self.pixelSize[1], 1)
+        glScalef(1, (self.height - self.pixelSize[1]*2)/32.0, 1)
+        glCallList(self.listBase+6)
+        glPopMatrix()
+        
+        #Bottom left corner
+        glPushMatrix()
+        glTranslatef(0, self.height-self.pixelSize[1], 1)
+        glCallList(self.listBase+7)
+        glPopMatrix()
+        
+        #Top middle
+        glPushMatrix()
+        glTranslatef(self.pixelSize[0], self.height-self.pixelSize[1], 1)
+        glScalef((self.width-(self.pixelSize[0]*2))/self.pixelSize[0], 1, 1)
+        glCallList(self.listBase+8)
+        glPopMatrix()
+        
+        #Top right corner
+        glPushMatrix()
+        glTranslatef(self.width-self.pixelSize[0], self.height-self.pixelSize[1], 1)
+        glCallList(self.listBase+9)
+        glPopMatrix()
+        
+        glEndList()
+            
     #changes the size of the image and scales the surface
     def setDimensions(self, width, height):
 		#if the dimensions are the same then skip regenerating the verts
@@ -111,9 +113,12 @@ class WinObj:
         
         self.width = width
         self.height = height
-
-		#reupdates the verts
-        self.__createVerts__()
+        
+    def getWidth(self):
+        return self.width
+		
+    def getHeight(self):
+        return self.height
         
     #sets the colour of the image (RGBA 0.0 -> 1.0)
     def setColor(self, color):
@@ -121,19 +126,17 @@ class WinObj:
             self.color[i] = color[i]
 
     #finally draws the image to the screen
-    def draw(self):
+    '''def draw(self):
+        if self.listBase == None:
+            self.__createArrays__()
+		
         glPushMatrix()
 
-        glTranslatef(self.left, self.top,-.1)
         glColor4f(*self.color)
+        
         self.texture.bind()
-
-        glEnableClientState(GL_TEXTURE_COORD_ARRAY)
-        glEnableClientState(GL_VERTEX_ARRAY)
-        glVertexPointerf(self.vtxArray)
-        glTexCoordPointerf(self.texArray)
-        glDrawElements(GL_QUADS, len(self.indexArray), GL_UNSIGNED_BYTE, self.indexArray)
-        glDisableClientState(GL_VERTEX_ARRAY)
-        glDisableClientState(GL_TEXTURE_COORD_ARRAY)
-
-        glPopMatrix()
+		
+        glTranslatef(self.position[0], self.position[1], -.1)
+        glCallList(self.listBase)
+        
+        glPopMatrix()'''
