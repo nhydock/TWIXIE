@@ -32,12 +32,14 @@ class ClientComponent(Scene):
 		self.message = None	#stores the wrapped message so the processing does not happen every frame
 		self.mIndex = 0		#current line index for the message display
 		
+		self.messageWindow = WinObj(Texture("window.png"), (64, 64))
+		
 	#gets the global font for use
 	def getFont(self):
 		return self.font
 		
 	#wrap words to screen size
-	def wrapWords(self, s):
+	def wrapWords(self, s, width):
 		lines = []					#lines generated
 		line = []					#words in current line
 		words = s.split()			#split up the string into individual words
@@ -46,7 +48,6 @@ class ClientComponent(Scene):
 		iterator = 0				#index in word list
 		xStart = 10					#x position to start calculations from
 		x = 0						#x position on screen for wrapping
-		width = IRES[0]				#width of the screen to wrap within
 		
 		#operation to take the string and divide it into lines
 		for word in words:
@@ -103,7 +104,7 @@ class ClientComponent(Scene):
 		#place the background in the center of the screen
 		background.setPosition(IRES[0]/2, IRES[1]/2)
 		#scale the background to the size of the window
-		background.setScale(min(background.pixelSize[0], IRES[0]), min(background.pixelSize[1], IRES[1]), True)	
+		background.setScale(min(background.pixelSize[0], IRES[0]-64), min(background.pixelSize[1], IRES[1]), True)	
 		#give the image a hue
 		background.setColor(TEXT_COLOR)
 		#now the image should fill the background of the window
@@ -118,9 +119,15 @@ class ClientComponent(Scene):
 		else:
 			#format the message into lines of text
 			if self.message is None:
-				self.message = self.wrapWords(self.engine.getMessage())
+				width = IRES[0]-248
+				self.message = self.wrapWords(self.engine.getMessage(), width)
+				self.messageWindow.setDimensions(width+64, self.font.get_height()*min(len(self.message)-self.mIndex+64, LINES_TO_DISPLAY)+64)
+				self.messageWindow.setPosition(16, IRES[1]/2)
+				
+			self.messageWindow.draw()
+			
 			#draw the lines of text that are currently showing
 			for i in range(self.mIndex, min(len(self.message), self.mIndex+LINES_TO_DISPLAY)):
-				self.font.setPosition(3, self.font.get_height()*LINES_TO_DISPLAY - self.font.get_height()*(i % LINES_TO_DISPLAY))
+				self.font.setPosition(self.messageWindow.getX(), self.messageWindow.getY()+self.font.get_height()*LINES_TO_DISPLAY - self.font.get_height()*(i % LINES_TO_DISPLAY))
 				self.font.render(self.message[i])
 			#self.internal_buffer.blit(self.messageDisplayArea, (0, self.internal_buffer.get_height()-self.messageDisplayArea.get_height()))
