@@ -125,18 +125,3 @@ class WinObj(ImgObj):
         for i in range(len(color)):
             self.color[i] = color[i]
 
-    #finally draws the image to the screen
-    '''def draw(self):
-        if self.listBase == None:
-            self.__createArrays__()
-		
-        glPushMatrix()
-
-        glColor4f(*self.color)
-        
-        self.texture.bind()
-		
-        glTranslatef(self.position[0], self.position[1], -.1)
-        glCallList(self.listBase)
-        
-        glPopMatrix()'''

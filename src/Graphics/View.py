@@ -9,20 +9,14 @@ Licensed under the GNU General Public License V3
 
 '''
 
-from Camera import Camera, DEFAULT_ZOOM
-from ImgObj import ImgObj #load in ImgObj to handle resetting clickable buttons when changing scenes
+from Graphics.Camera import Camera, DEFAULT_ZOOM
+from Graphics.ImgObj import ImgObj #load in ImgObj to handle resetting clickable buttons when changing scenes
+from Core import Input
 
 import pygame
 
-import numpy as np
-from numpy import float32, array
-
 from OpenGL.GL import *
 from OpenGL.GLU import *
-
-from math import *
-
-import Input
 
 INTERNAL_RESOLUTION = [1024.0, 600.0] #resolution at which the engine actually renders at
 SOFTWARE = 0	#Basic software rendering mode for pygame
@@ -154,29 +148,23 @@ class Viewport:
         ImgObj.clickableObjs = []
         self.addScene = scene
             
-    #checks to see where the position of the mouse is over 
-    #an object and if that object has been clicked
-    #also handles all the key input and passes it to the current scene
-    def detect(self, scene):
-        for key, char in Input.getKeyPresses():
-            scene.keyPressed(key, char)
-
-        for press in Input.clicks:
-            clickedImages = [image.getCollision(press) for image in ImgObj.clickableObjs]
-            try:
-                x = clickedImages.index(True)
-                scene.buttonClicked(ImgObj.clickableObjs[x])
-            except ValueError:
-                continue
-
-
     #renders a scene fully textured
     def render(self, scene, visibility):
         self.setOrthoProjection()           #changes projection so the hud/menus can be drawn
         scene.render(visibility)
         self.resetProjection()
-            
-    def run(self):
+       
+    #gets the top most scene
+    #this is the scene that is currently being logically updated
+    # as well as receiving input
+    def getTopMostScene(self):
+        try:
+            return self.scenes[-1]
+        except IndexError:
+            return None
+        
+    #updates the graphics display of the game
+    def update(self):
         #clears the buffer
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         #reset matrix every frame
@@ -200,11 +188,6 @@ class Viewport:
             
         #all scenes should be rendered but not checked for input
         for i, scene in enumerate(self.scenes):
-            topmost = bool(scene == self.scenes[-1]) #is the scene the topmost scene
-                    
-            if topmost:
-                scene.run()                         #any calculations of interactions are processed from the
-                                                    # previous loop before anything new is rendered
 
 			#run through and render the scene
             try:
@@ -216,8 +199,3 @@ class Viewport:
                 self.resetProjection()
                 
         pygame.display.flip()                       #switches back buffer to the front
-            
-        if self.scenes:
-            #only the topmost scene should be checked for input
-            self.detect(self.scenes[-1])            #checks to see if any object on the back buffer has been clicked
-            

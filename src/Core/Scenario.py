@@ -3,7 +3,7 @@ from Command import Command, loadCommand
 import os
 from TwiObj import TwiObj
 import glob
-from ImgObj import ImgObj
+from Graphics.ImgObj import ImgObj
 
 #Room object
 #Rooms are where all the action happens
