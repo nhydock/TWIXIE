@@ -35,7 +35,7 @@ class WinObj(ImgObj):
         #create the base location of the list
         #there's an additional slot added to hold the entire frame assembled
         self.listBase = glGenLists((self.frames[0]*self.frames[1]))
-		
+        
         #texture coordinates vary on frame, and as a result so do the display lists
         for y in xrange(self.frames[1]):
             for x in xrange(self.frames[0]):
@@ -43,71 +43,56 @@ class WinObj(ImgObj):
                 self.__createDisplayList__(x+(y*self.frames[0])+1)
             
         glNewList(self.listBase, GL_COMPILE)
-		
-		#Top left corner
+        
+        #draw corners
         glPushMatrix()
-        glTranslatef(0, 0, 1)
+        #Top left corner
         glCallList(self.listBase+1)
-        glPopMatrix()
-        
-        #Top middle
-        glPushMatrix()
-        glTranslatef(self.pixelSize[0], 0, 1)
-        glScalef((self.width-(self.pixelSize[0]*2))/self.pixelSize[0], 1, 1)
-        glCallList(self.listBase+2)
-        glPopMatrix()
-        
+        #Bottom left corner
+        glTranslatef(0, self.pixelSize[1]-self.height, 0)
+        glCallList(self.listBase+7)
+        #Bottom right corner
+        glTranslatef(self.width-self.pixelSize[0], 0, 0)
+        glCallList(self.listBase+9)
         #Top right corner
-        glPushMatrix()
-        glTranslatef(self.width-self.pixelSize[0], 0, 1)
+        glTranslatef(0, self.height-self.pixelSize[1], 0)
         glCallList(self.listBase+3)
         glPopMatrix()
         
-        #Left Side
-        glPushMatrix()
-        glTranslatef(0, self.pixelSize[1], 1)
-        glScalef(1, (self.height - self.pixelSize[1]*2)/32.0, 1)
-        glCallList(self.listBase+4)
-        glPopMatrix()
+        #draw edges
         
-        #Middle Piece
         glPushMatrix()
-        glTranslatef(self.pixelSize[0], self.pixelSize[1], 1)
-        glScalef((self.width-(self.pixelSize[0]*2))/self.pixelSize[0], (self.height - self.pixelSize[1]*2)/32.0, 1)
-        glCallList(self.listBase+5)
-        glPopMatrix()
-        
-        #Right Side
-        glPushMatrix()
-        glTranslatef(self.width-self.pixelSize[0], self.pixelSize[1], 1)
-        glScalef(1, (self.height - self.pixelSize[1]*2)/32.0, 1)
-        glCallList(self.listBase+6)
-        glPopMatrix()
-        
-        #Bottom left corner
-        glPushMatrix()
-        glTranslatef(0, self.height-self.pixelSize[1], 1)
-        glCallList(self.listBase+7)
-        glPopMatrix()
-        
-        #Top middle
-        glPushMatrix()
-        glTranslatef(self.pixelSize[0], self.height-self.pixelSize[1], 1)
+        #Top
+        glTranslatef(self.pixelSize[0], 0, 0)
         glScalef((self.width-(self.pixelSize[0]*2))/self.pixelSize[0], 1, 1)
+        glCallList(self.listBase+2)
+        #Bottom
+        glTranslatef(0, -self.height+self.pixelSize[1], 0)
         glCallList(self.listBase+8)
         glPopMatrix()
         
-        #Top right corner
         glPushMatrix()
-        glTranslatef(self.width-self.pixelSize[0], self.height-self.pixelSize[1], 1)
-        glCallList(self.listBase+9)
+        #Left Side
+        glTranslatef(0, -self.pixelSize[1], 0)
+        glScalef(1, (self.height - self.pixelSize[1]*2)/self.pixelSize[1], 1)
+        glCallList(self.listBase+4)
+        #Right Side
+        glTranslatef(self.width-self.pixelSize[0], 0, 0)
+        glCallList(self.listBase+6)
+        glPopMatrix()
+        
+        #draw center
+        glPushMatrix()
+        glTranslate(self.pixelSize[0], -self.pixelSize[1], 0)
+        glScale((self.width-(self.pixelSize[0]*2))/self.pixelSize[0], (self.height - self.pixelSize[1]*2)/self.pixelSize[1], 1)
+        glCallList(self.listBase+5)
         glPopMatrix()
         
         glEndList()
             
     #changes the size of the image and scales the surface
     def setDimensions(self, width, height):
-		#if the dimensions are the same then skip regenerating the verts
+        #if the dimensions are the same then skip regenerating the verts
         if self.width == width and self.height == height:
             return
         
@@ -116,7 +101,7 @@ class WinObj(ImgObj):
         
     def getWidth(self):
         return self.width
-		
+        
     def getHeight(self):
         return self.height
         
