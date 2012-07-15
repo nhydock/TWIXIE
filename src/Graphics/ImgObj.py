@@ -18,9 +18,10 @@ from Texture import loadTexture
 
 import pygame
 
-LEFT   = 0
+LEFT   = TOP = 0
 CENTER = 1
-RIGHT  = 2
+RIGHT  = BOTTOM = 2
+
 
 #an Image Object for rendering and collision detection (mouse)
 class ImgObj(object):
@@ -42,8 +43,8 @@ class ImgObj(object):
         
         self.frameSize   = (1.0/float(frameX),1.0/float(frameY))
                                                     #the size of each cell when divided into frames
-        self.alignment  = CENTER                    #alignment of the vertices horizontally for placement
-        self.valignment  = CENTER                   #alignment of the vertices vertically for placement
+        self.alignment   = LEFT                     #alignment of the vertices horizontally for placement
+        self.valignment  = TOP                      #alignment of the vertices vertically for placement
         self.pixelSize   = (self.texture.pixelSize[0]/frameX,
                             self.texture.pixelSize[1]/frameY)   
                                                     #the actual size of the image in pixels
@@ -95,7 +96,7 @@ class ImgObj(object):
         vtxArray[3] = vtxArray[1]
         #bottom right
         vtxArray[4] = vtxArray[2]
-        vtxArray[5] = self.pixelSize[1]
+        vtxArray[5] = -self.pixelSize[1]
         #bottom left
         vtxArray[6] = vtxArray[0]
         vtxArray[7] = vtxArray[5]

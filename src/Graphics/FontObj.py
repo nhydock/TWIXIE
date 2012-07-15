@@ -93,12 +93,11 @@ class FontObj(pygame.font.Font):
             #generate the vertex array
             vtxArray = [0.0]*8
             pixelSize = self.glyphTex[i].pixelSize
-            halfPS = (float(pixelSize[0])/2.0, float(pixelSize[1])/2.0)
 
-            vtxArray[0] = 0;            vtxArray[1] =  halfPS[1]
-            vtxArray[2] = pixelSize[0]; vtxArray[3] =  halfPS[1]
-            vtxArray[4] = pixelSize[0]; vtxArray[5] = -halfPS[1]
-            vtxArray[6] = 0;            vtxArray[7] = -halfPS[1]
+            vtxArray[0] = 0;            vtxArray[1] =  0
+            vtxArray[2] = pixelSize[0]; vtxArray[3] =  0
+            vtxArray[4] = pixelSize[0]; vtxArray[5] = -pixelSize[1]
+            vtxArray[6] = 0;            vtxArray[7] = -pixelSize[1]
             
             #bind and render the glyph
             self.glyphTex[i].bind()
@@ -187,7 +186,7 @@ class FontObj(pygame.font.Font):
             
             #first we split the text into lines if it's not already
             if type(text) is str:
-                text = text.split('\n')
+                text = text.split("\n")
                 
             #print the lines of text
             for line in text:
