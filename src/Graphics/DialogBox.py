@@ -91,13 +91,6 @@ class DialogBox(WinObj):
     #empties the text from the dialog box
     def clear(self):
         self.text = []
-        
-    #overrides window setting position because we also need to position
-    # the text object
-    def setPosition(self, x, y):
-        super(DialogBox, self).setPosition(x, y)
-        #font is offset by the borders
-        self.font.setPosition(x, y)
 
     #allow setting the height by the number of lines you want the dialogbox
     #to be able to show at any single time
@@ -126,7 +119,8 @@ class DialogBox(WinObj):
         #displays the lines of text within the window
         #print self.text[block_index]
         glPushMatrix()
-        glTranslatef(self.pixelSize[0], self.pixelSize[1], 1)
+        glTranslatef(self.pixelSize[0], 0, 0)
+        self.font.setPosition(self.position[0], self.position[1])
         self.font.render(self.text[block_index])
         glPopMatrix()
             

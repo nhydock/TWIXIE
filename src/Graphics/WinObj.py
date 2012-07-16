@@ -55,12 +55,11 @@ class WinObj(ImgObj):
         glTranslatef(self.width-self.pixelSize[0], 0, 0)
         glCallList(self.listBase+9)
         #Top right corner
-        glTranslatef(0, self.height-self.pixelSize[1], 0)
+        glTranslatef(0, -(self.pixelSize[1]-self.height), 0)
         glCallList(self.listBase+3)
         glPopMatrix()
         
         #draw edges
-        
         glPushMatrix()
         #Top
         glTranslatef(self.pixelSize[0], 0, 0)
@@ -70,11 +69,10 @@ class WinObj(ImgObj):
         glTranslatef(0, -self.height+self.pixelSize[1], 0)
         glCallList(self.listBase+8)
         glPopMatrix()
-        
         glPushMatrix()
         #Left Side
         glTranslatef(0, -self.pixelSize[1], 0)
-        glScalef(1, (self.height - self.pixelSize[1]*2)/self.pixelSize[1], 1)
+        glScalef(1, (self.height - (self.pixelSize[1]*2))/self.pixelSize[1], 1)
         glCallList(self.listBase+4)
         #Right Side
         glTranslatef(self.width-self.pixelSize[0], 0, 0)

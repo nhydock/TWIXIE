@@ -23,9 +23,9 @@ from Texture import Texture #create Textures specifically instead of loadTexture
 import string
 
 #global alignment variables
-LEFT   = 0
+LEFT   = TOP = 0
 CENTER = 1
-RIGHT  = 2
+RIGHT  = BOTTOM = 2
 
 #set up the generic texture array
 TEX_ARRAY = [0.0]*8
@@ -60,7 +60,8 @@ class FontObj(pygame.font.Font):
         self.position  = (0,0)               #where in the window it should render
         self.angle     = 0                   #angle which the font is drawn
         self.color     = (255,255,255,255)   #colour of the font
-        self.alignment = 1                   #alignment of the text (left, center , right)
+        self.alignment = LEFT                #alignment of the text (left, center , right)
+        self.valignment = TOP                #vertical alignment
         self.shadow = True                   #does the font project a shadow
 
     #gets the natural width of the string in pixels
@@ -167,14 +168,25 @@ class FontObj(pygame.font.Font):
             glPushAttrib(GL_LIST_BIT | GL_CURRENT_BIT  | GL_ENABLE_BIT | GL_TRANSFORM_BIT)
             glPushMatrix()
             
+            #first we split the text into lines if it's not already
+            if type(text) is str:
+                text = text.split("\n")
+                
             #set the position based on alignment
             x = position[0]
-            if self.alignment == 0:
-                x += self.font.size(text)[0]/2.0
+            if self.alignment == 1:
+                x -= self.size(text)[0]/2.0
             elif self.alignment == 2:
-                x -= self.font.size(text)[0]/2.0
-
-            glTranslatef(x, position[1],-.1)	#first we move the font into the proper position
+                x -= self.size(text)[0]
+            
+            y = position[1]
+            if self.valignment == 1:
+                y -= (len(text) * height)/2.0
+            elif self.valignment == 2:
+                y -= len(text) * height
+            
+                
+            glTranslatef(x, y, -.1)	            #first we move the font into the proper position
             glScalef(scale, scale, 1.0)			#then we scale it up/down
             glRotatef(angle, 0, 0, 1)			#then we rotate it
             glColor4f(*color)					#and finally we apply the colour
@@ -184,10 +196,6 @@ class FontObj(pygame.font.Font):
             #we identify the list base so opengl knows the data we're looking at for glyphs
             glListBase(self.listBase)
             
-            #first we split the text into lines if it's not already
-            if type(text) is str:
-                text = text.split("\n")
-                
             #print the lines of text
             for line in text:
                 #because things are rendered in a proper cartesian coordinate

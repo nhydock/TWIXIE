@@ -243,17 +243,17 @@ class ImgObj(object):
 
         #fix the x position based on alignment
         x = self.position[0]
-        if self.alignment == 0:
-            x += float(self.pixelSize[0])/2.0
-        elif self.alignment == 2:
+        if self.alignment == 1:
             x -= float(self.pixelSize[0])/2.0
+        elif self.alignment == 2:
+            x -= float(self.pixelSize[0])
             
         #fix the y position based on vertical alignment
         y = self.position[1]
-        if self.valignment == 0:
+        if self.valignment == 1:
             y += float(self.pixelSize[1])/2.0
         elif self.alignment == 2:
-            y -= float(self.pixelSize[1])/2.0
+            y += float(self.pixelSize[1])
             
         glTranslatef(x, y, -.1)
             
