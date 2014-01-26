@@ -2,6 +2,7 @@ import sfml as sf
 from Utils.Scene import Manager
 
 FPS = 60
+running = True;
 
 """
 Main application Runner
@@ -20,6 +21,16 @@ class Runner:
       self.clock = sf.Clock()
 
    def update(self):
+      global running
+
+      for event in self.window.iter_events():
+         if event.type == sf.Event.CLOSED:
+            running = False
+         if event.type == sf.Event.TEXT_ENTERED or \
+            event.type == sf.Event.KEY_PRESSED or \
+            event.type == sf.Event.KEY_RELEASED:
+            Manager.handle_input(event)
+
       #get the amount of time passed since the last update
       delta = self.clock.elapsed_time.as_seconds()
       self.clock.restart()
@@ -41,19 +52,11 @@ class Runner:
       Manager.destroy()
 
 def main():
-   running = True
-
+   global running
+   
    app = Runner()
 
    while running:
-      for event in app.window.iter_events():
-         if event.type == sf.Event.CLOSED:
-            running = False
-         if event.type == sf.Event.TEXT_ENTERED or \
-            event.type == sf.Event.KEY_PRESSED or \
-            event.type == sf.Event.KEY_RELEASED:
-            Manager.handle_input(event)
-
       app.update()
         
    app.destroy()
