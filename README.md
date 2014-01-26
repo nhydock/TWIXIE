@@ -21,7 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -------
 ###Library Requirements:
 -------
-*  Python 2.7
+*  Python 3
 *  LXML
-*  PyGame
-*  PyOpenGL
+*  PySFML2

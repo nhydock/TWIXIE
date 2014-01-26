@@ -1,4 +1,3 @@
-import pygame, pygame.image
 from pygame.locals import *
 
 #object that has been cached
