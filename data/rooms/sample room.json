@@ -1,0 +1,72 @@
+{
+    "Dungeon Cell" : {
+        "type" : "room",
+        //description of the room for when you look around
+        "examine" : "
+            You are in a dark dungeon. The air is musty, and
+            there is no light, save what little leaks through
+            the bars of the cell's door from a burning torch
+            in the hall outside. You hear some moaning in the
+            distance, but aside from that, you are alone.
+        ",
+        //a background image that may be displayed when in the room
+        "background" : "sample.png",
+    },
+
+    //items can be defined inline or referenced by name
+    // you also don't have to specify the type as an item since it's in the items array
+    "items" : [{
+        "name" : "Latrine",
+        "examine" : "A hole in the ground where you are to \"relieve
+                     yourself.\" You consider yourself lucky to have
+                     been given any such a luxury.",
+        "use" : "You use the latrine. You feel much better.
+                Now, if only you had something to clean your
+                bottom with...",
+        //if an item can not be possessed, you may perform the "use" command on it
+        // while it is in the room
+        "possess" : false,
+    }, 
+    {
+        "name" : "Bed",
+        "examine" : "A rough looking bed. It is probably uncomfortable.
+                     Chains attached to the wall lift it off the floor.
+                     The chains are horribly rusted.",
+        "use" : "You have no time for sleeping! You must
+                 find a way to escape!",
+        "possess" : false
+    }, 
+    {
+        "type" : "item",
+        "name" : "Cup",
+        "examine" : "A simple tin cup. There is some dirty-looking water in it.",
+        //if an item can be held, you must have it in your inventory before you can use
+        // any of its actions ("use" and custom ones)
+        "possess" : true,
+        
+        //if an item has a command list attached to it, these commands can be performed
+        //anywhere as long as the item is in the player's inventory
+        //rooms can have additional specific commands that can override the item's command
+        //or even consume the item 
+        "actions" : {
+            "Drink water" : {
+                "type" : "command",
+                "say" : "Bleh! This water is rancid! You fear it
+                                 may have done more harm than good...",
+                
+                "do" : {
+                    "player" : {
+                        "remove" : ["Cup"],
+                        "add" : {
+                            "Empty Cup" : {
+                                "type" : "item",
+                                "say" : "A simple tin cup. It is empty.",
+                                "possess" : true
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }],
+}

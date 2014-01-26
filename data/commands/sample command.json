@@ -1,0 +1,80 @@
+/*
+    Here is an example of an obscenely convoluted Command. First, the Command
+    creates a new Item, with an in-line definition. This new Item also has a
+    Command, which also creates a new Item in-line. The final Item again has a
+    Command, which adds a new path to a Room. Please, if you can, describe all
+    of your Rooms, Items, and Commands in separate files, and link them via
+    their names instead.
+*/
+{
+	//the key defines what the player must type in order to invoke the action
+	// in this case since the type is command the player must say precisely the key
+	"Inspect Walls" : {
+		"type" : "command",
+
+		//the message will display when the action is performed
+		"message" : "The walls are damp, and made of stone. The years
+        			 have smoothed their once-rough edges. Some bricks
+        			 in the far wall seem a tad loose...",
+
+        //do defines how the room and player are altered upon invoking the command
+        "do" : {
+        	"room" : {
+        		//using add, you can create new items, commands, and doorways by
+        		//following the specifications for each
+	        	"add" : {
+	        		"Loose Bricks" : {
+		        		"type" : "item",
+		        		"description" : "Some bricks that appear to have been
+										loosened from the wall, probably by a
+										previous inmate...",
+						"possess" : false
+					},
+					"Move Loose Bricks" : {
+						"type" : "command",
+						"message" : "You move aside the loose bricks to reveal...
+
+									A key!",
+						"do" : {
+							"room" : {
+								//you can also remove any element from the room by specifying its name
+								// obviously you can't define things inline here.  You must use an array
+								"remove" : ["Loose Bricks", "Move Loose Bricks"],
+								"add" : {
+									"Rusty Key" : {
+										"type" : "item",
+						        		"description" : "A rusty key, it appears to have been
+															hand-crafted...",
+										"possess" : true
+									},
+									"Unlock cell door" : {
+										"type" : "command",
+										"message" : "The door is now unlocked. You can now leave
+													 the cell!",
+										"do" : {
+											//as mentioned before, you can alter the player
+											//if the action needs to remove something from the player
+											// it will check to see if the player has those items before
+											// it performs anything else.
+											"player" : {
+												"remove" : ["Rusty Key"]
+											},
+											"room" : {
+												"add" : [
+													{
+														"type" : "door",
+														"name" : "Hallway"
+													}
+												]
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+		        }
+	        }
+        }
+	}
+}
