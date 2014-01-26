@@ -23,7 +23,7 @@ class Runner:
       #get the amount of time passed since the last update
       delta = self.clock.elapsed_time.as_seconds()
       self.clock.restart()
-            
+
       #process the manager
       Manager.update(delta)
 
@@ -49,6 +49,10 @@ def main():
       for event in app.window.iter_events():
          if event.type == sf.Event.CLOSED:
             running = False
+         if event.type == sf.Event.TEXT_ENTERED or \
+            event.type == sf.Event.KEY_PRESSED or \
+            event.type == sf.Event.KEY_RELEASED:
+            Manager.handle_input(event)
 
       app.update()
         

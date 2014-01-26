@@ -47,3 +47,12 @@ class Scene(object):
 	"""
 	def render(self, delta):
 		pass
+
+	"""
+	Handles key input
+	"""
+	def key_pressed(self, code):
+		pass
+
+	def key_released(self, code):
+		pass

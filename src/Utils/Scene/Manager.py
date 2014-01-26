@@ -1,4 +1,5 @@
 import importlib
+import sfml as sf
 
 """
 Scene managers help generate new scenes on request as well as maintain
@@ -54,12 +55,9 @@ class Manager(object):
 		class_name = module_name.split(".")[-1]
 		module_name = ".".join(module_name.split(".")[:-1])
 
-		if (module_name):
-			try: 
-				module = importlib.import_module(module_name)
-				return getattr(module, class_name)()
-			except ImportError:
-				return None
+		if module_name:
+			module = importlib.import_module(module_name)
+			return getattr(module, class_name)()
 
 	"""
 	Create a new scene instance by name using reflection.
@@ -98,7 +96,7 @@ class Manager(object):
 	"""
 	def _update(self, delta):
 
-		if (self.next is None):
+		if self.next is None:
 			#update the currently visible scene
 			self.active.update(delta)
 		#know to swap out
@@ -106,10 +104,10 @@ class Manager(object):
 			#only swap once both the active since is finished decomposing
 			# and when the next scene is done preparing
 			done = self.next.start()
-			if (self.active):
+			if self.active:
 				done = done and self.active.end()
 
-			if (done):
+			if done:
 				self.active = None
 				self.active = self.next
 				self.next = None
@@ -125,8 +123,10 @@ class Manager(object):
 
 	def _render(self, context, delta):
 
-		if (self.active):
-			self.active.render(context, delta)
+		if not self.active:
+			return
+
+		self.active.render(context, delta)
 
 	@staticmethod
 	def render(context, delta):
@@ -150,3 +150,16 @@ class Manager(object):
 	@staticmethod
 	def destroy():
 		Manager._instance._destroy()
+
+	def _handle_input(self, event):
+		if not self.active:
+			return
+
+		if event.type == sf.Event.KEY_PRESSED or event.type == sf.Event.TEXT_ENTERED:
+			self.active.key_pressed(event)
+		elif event.type == sf.Event.KEY_RELEASED:
+			self.active.key_released(event)
+
+	@staticmethod
+	def handle_input(event):
+		Manager._instance._handle_input(event)
