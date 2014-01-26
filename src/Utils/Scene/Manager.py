@@ -126,7 +126,11 @@ class Manager(object):
 		if not self.active:
 			return
 
-		self.active.render(context, delta)
+		if self.next is None:
+			self.active.render(context, delta)
+		else:
+			#draw a loading screen here in the future
+			pass
 
 	@staticmethod
 	def render(context, delta):
