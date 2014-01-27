@@ -1,3 +1,29 @@
+#!/usr/bin/env python
+'''
+
+TWIXIE
+Typed-Word Invokable Xenomorphic Incident Engine
+
+@author Nicholas Hydock
+@date 2014
+@License LGPL v3
+
+This file is part of TWIXIE.
+
+TWIXIE is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Foobar is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+'''
+
 import sfml as sf
 from Utils.Scene import Manager
 
@@ -53,7 +79,7 @@ class Runner:
 
 def main():
    global running
-   
+
    app = Runner()
 
    while running:

@@ -1,5 +1,8 @@
 import importlib
 import sfml as sf
+from threading import Thread
+
+_loading = False
 
 """
 Scene managers help generate new scenes on request as well as maintain
@@ -10,9 +13,11 @@ type that the manager is capable of managing.
 A scene manager is good for adding a layer of abstraction to your game
 so you don't have to man-handle all the processes yourself.
 
-For added convenience, a singleton Manager can be initialized and used
-with static methods, though if you want to have multiple managers and
-just access their methods directly you're free to do that too.
+For added convenience, a Manager is designed to be run as a singleton
+with static methods existing so you can use it as such.  However, this
+is Python, so it can be initialized as a standard object and you can
+have multiple managers, accessing their \"private\" methods directly
+if you so desire.
 """
 class Manager(object):
 	_instance = None
@@ -30,6 +35,8 @@ class Manager(object):
 		self.scenes = {}
 		self.active = None
 		self.next = None
+
+		self._loadThread = None
 
 	"""
 	Add a new scene type to be managed and produced
@@ -69,15 +76,41 @@ class Manager(object):
 	def create(name):
 		Manager._instance._create(name)
 
+	"""
+	Method for asynchronous threaded loading/swapping of scenes
+	"""
+	def _load(self):
+		global _loading
+
+		_loading = False;
+		while not _loading:
+			_loading = self.next.start()
+			if self.active:
+				_loading = _loading and self.active.end()
+		#only swap once both the active since is finished decomposing
+		# and when the next scene is done preparing
+		self.active = None
+		self.active = self.next
+		self.next = None
+
 	def _set(self, scene):
 		if scene:
 			self.next = scene
-
-	def _create_and_set(self, name):
-		self._set(self._create(name))
+			self._loadThread = Thread(target=self._load)
+			self._loadThread.start()
 
 	def set(scene):
 		Manager._instance._set(scene)
+
+	"""
+	Create a new scene instance by name using reflection.
+	This just pumps out a factoried scene, and does not actually manage it.
+	Use this if you desire to create a cached scene that you intend on
+	swapping in later
+	"""
+	def _create_and_set(self, name):
+		self._set(self._create(name))
+
 
 	"""
 	Create a new scene instance by name using reflection.
@@ -101,16 +134,8 @@ class Manager(object):
 			self.active.update(delta)
 		#know to swap out
 		else:
-			#only swap once both the active since is finished decomposing
-			# and when the next scene is done preparing
-			done = self.next.start()
-			if self.active:
-				done = done and self.active.end()
-
-			if done:
-				self.active = None
-				self.active = self.next
-				self.next = None
+			if _loading:
+				self._loadThread.join()
 
 	"""
 	Perform generic management updating
@@ -121,6 +146,11 @@ class Manager(object):
 	def update(delta):
 		Manager._instance._update(delta)
 
+	"""
+	Perform generic management updating
+	The game should call this every update cycle as the manager sends down the
+	chain of commands.
+	"""
 	def _render(self, context, delta):
 
 		if not self.active:
@@ -137,24 +167,15 @@ class Manager(object):
 		Manager._instance._render(context, delta)
 
 	"""
-	Kill the manager and it's currently existing scenes
+	Delegates input events down to the scene.
+
+	While certain kinds of input are more than likely best
+	to just be handled in the update method due to always
+	being able to fetch the precise state of the keys,
+	other kinds of input, such as typing, are simple,
+	non-precise scenarios that are best handled through
+	using SFML's event system.
 	"""
-	def _destroy(self):
-		if (self.active):
-			while not self.active.end(): 
-				pass
-			self.active = None
-
-		if (self.next):
-			while not self.next.end(): 
-				pass
-
-			self.active = None
-
-	@staticmethod
-	def destroy():
-		Manager._instance._destroy()
-
 	def _handle_input(self, event):
 		if not self.active:
 			return
@@ -167,3 +188,25 @@ class Manager(object):
 	@staticmethod
 	def handle_input(event):
 		Manager._instance._handle_input(event)
+
+	"""
+	Kill the manager and it's currently existing scenes
+	"""
+	def _destroy(self):
+		if self._loadThread.isAlive():
+			self._loadThread.join()
+
+		if (self.active):
+			while not self.active.end(): 
+				pass
+			self.active = None
+
+		if (self.next):
+			while not self.next.end(): 
+				pass
+
+			self.next = None
+
+	@staticmethod
+	def destroy():
+		Manager._instance._destroy()
