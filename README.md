@@ -6,7 +6,7 @@ Typed-Word Invokable Xenomorphic Incident Engine, a simple Text-Based adventure 
 Copyright (C) 2012 Nicholas Hydock, Matthew Hydock
 
 This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
+it under the terms of the GNU Lesser General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 
@@ -21,6 +21,5 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -------
 ###Library Requirements:
 -------
-*  Python 3
-*  LXML
+*  Python >= 3.3
 *  PySFML2
