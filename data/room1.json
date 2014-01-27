@@ -1,0 +1,165 @@
+{
+    "Dungeon Cell" : {
+        "type" : "room",
+        //description of the room for when you look around
+        "examine" : "
+            You are in a dark dungeon. The air is musty, and
+            there is no light, save what little leaks through
+            the bars of the cell's door from a burning torch
+            in the hall outside. You hear some moaning in the
+            distance, but aside from that, you are alone.
+        ",
+        //a background image that may be displayed when in the room
+        "background" : "sample.png",
+    },
+
+    //objects are all the interactable things in a room
+    "objects" : [
+        {
+            //name defines how you call the object
+            "name" : "Latrine",
+            //saying examine Latrine or look at Latrine will show this message
+            "examine" : "A hole in the ground where you are to \"relieve
+                         yourself.\" You consider yourself lucky to have
+                         been given any such a luxury.",
+            //if defined, you can also use objects with which it will display a different
+            // kind of message than just looking at it.  If no use is defined
+            // then it will just say "You can not use that object"
+            "use" : "You use the latrine. You feel much better.
+                    Now, if only you had something to clean your
+                    bottom with...",
+            //if an object can not be possessed, you may perform any actions on it
+            // without needing it to be in your inventory
+            "possess" : false,
+        }, 
+        {
+            "name" : "Bed",
+            "examine" : "A rough looking bed. It is probably uncomfortable.
+                         Chains attached to the wall lift it off the floor.
+                         The chains are horribly rusted.",
+            "use" : "You have no time for sleeping! You must find a way to escape!",
+            "possess" : false
+        }, 
+        {
+            "name" : "Cup",
+            "examine" : "A simple tin cup. There is some dirty-looking water in it.",
+            //if an item can be held, you must have it in your inventory before you can use
+            // any of its actions ("use" and custom ones)
+            "possess" : true,
+            
+            //if an object has an actions list attached to it, theses commands can be used in
+            // addition to the default examine and use that all objects come with
+            "actions" : [
+                {
+                    "name" : "Drink water",
+                    //the message will display when the action is performed
+                    "say" : "Bleh! This water is rancid! You fear it may have done more harm than good...",
+                    //do defines how the actions makes alterations to the room or player
+                    "do" : {
+                        "player" : {
+                            //in this case we're removing the cup that the player just drank from from their inventory
+                            // and replacing it with a new in-line defined item called "Empty Cup"
+                            //
+                            // if the action needs to remove something from the player
+                            // it will check to see if the player has those items before
+                            // it performs anything else.
+                            "remove" : ["Cup"],
+                            "add" : [
+                                {
+                                    "name" : "Empty Cup",
+                                    "examine" : "A simple tin cup. It is empty.",
+                                    "possess" : true
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name" : "Loose Bricks",
+            "examine" : "Some bricks that appear to have been
+                         loosened from the wall, probably by a
+                         previous inmate...",
+            "possess" : false,
+            //using hidden, you can have an object in the room without it being visible to the user yet
+            // I recommend using this if your interaction tree is deep just to keep the room's specificiations
+            // cleaner.  When you make a command that "adds" and object that is hidden, it will just make the
+            // item visible for interaction
+            //
+            // items are by default visible within the room
+            "hidden" : true,
+            "actions" : [
+                {
+                    //using @ in a command references that the command must include this item's name
+                    // much like a natural command such as examine @ or use @
+                    "name" : "move @",
+                    "say" : "You move aside the loose bricks to reveal...
+
+                             A key!",
+                    "do" : {
+                        "room" : {
+                            "remove" : ["Loose Bricks"],
+                            "add" : ["Rusty Key"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name" : "Rusty Key",
+            "type" : "item",
+            "examine" : "A rusty key, it appears to have been
+                        hand-crafted...",
+            "possess" : true,
+            "hidden" : true,
+            "actions" : [
+                {
+                    "name" : "Unlock Cell Door",
+                    "say" : "The door is now unlocked. You can now leave the cell!",
+                    "do" : {
+                        "player" : {
+                            "remove" : ["Rusty Key"]
+                        },
+                        "room" : {
+                            "add" : [
+                                {
+                                    "name" : "Hallway",
+                                    "examine" : "It looks rather dark down there, but considering your current
+                                                 conditions, anything sounds better than what you are in now.",
+                                    "actions" : [
+                                        {
+                                            "name" : "exit room",
+                                            "do" : {
+                                                //using a string for room instead of an object,
+                                                // you can swap the current room file/scenario out to a different one
+                                                "room" : "room2"
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name" : "Walls",
+            "actions" : [
+                //you can override preset actions to give them additional functionality than just saying a message
+                {
+                    "name" : "examine @",
+                    "say" : "The walls are damp, and made of stone. The years
+                         have smoothed their once-rough edges. Some bricks
+                         in the far wall seem a tad loose...",
+                    "do" : {
+                        "room" : {
+                            "add" : ["Loose Bricks"]
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}
